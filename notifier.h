@@ -28,6 +28,8 @@ public:
 
     int sendMessage(int priority, QString title, QString message);
 
+    int sendRestartMessage();
+
 signals:
     void finished();
 

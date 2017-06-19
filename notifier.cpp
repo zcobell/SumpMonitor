@@ -25,6 +25,23 @@ Notifier::~Notifier()
     disconnect(this->networkManager,SIGNAL(finished(QNetworkReply*)),this,SLOT(onPostAnswer(QNetworkReply*)));
 }
 
+int Notifier::sendRestartMessage()
+{
+    QUrl url("https://api.pushover.net/1/messages.json");
+    QUrlQuery postData;
+
+    postData.addQueryItem("token",APP_TOKEN);
+    postData.addQueryItem("user",USER_TOKEN);
+    postData.addQueryItem("priority",QString::number(0));
+    postData.addQueryItem("title","Sump Monitor Restarted");
+    postData.addQueryItem("message",QString("Sump Monitor was restarted at "+QDateTime::currentDateTime().toString("yyyy-mm-dd hh:MM:ss")));
+
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
+    this->networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+    return 0;
+}
+
 int Notifier::sendMessage(int priority, QString title, QString message)
 {
     if(priority<1)

@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include "monitor.h"
+#include "postsqldata.h"
 
 int main(int argc, char *argv[])
 {

@@ -9,7 +9,11 @@ Monitor::Monitor(QObject *parent) : QObject(parent)
 void Monitor::run()
 {
 
-    qDebug() << "Entering the monitoring routine...";
+    qDebug() << "Starting the monitoring routine...";
+
+    //...Alter the user that the monitor was restarted
+    this->pushMessageSender->sendRestartMessage();
+
     QTimer *monitorTimer = new QTimer(this);
     connect(monitorTimer,SIGNAL(timeout()),this,SLOT(checkStatus()));
     connect(this,SIGNAL(monitorError()),monitorTimer,SLOT(stop()));
@@ -40,6 +44,11 @@ void Monitor::checkStatus()
     if(ierr!=0)
         endMonitor();
     delete basinMonitor;
+
+    //...Post the data to the server
+    PostSQLData *sql = new PostSQLData(this);
+    sql->postData(wl,fl);
+    sql->deleteLater();
 
     //...Generate the status messages
     this->generateStatusMessage(fl,wl,priority,title,message);

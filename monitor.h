@@ -6,6 +6,7 @@
 #include "notifier.h"
 #include "waterlevelmonitor.h"
 #include "basinfloatmonitor.h"
+#include "postsqldata.h"
 
 class Monitor : public QObject
 {
