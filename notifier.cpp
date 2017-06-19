@@ -6,6 +6,18 @@ Notifier::Notifier(QObject *parent) : QObject(parent)
 {
     this->networkManager = new QNetworkAccessManager(this);
     connect(this->networkManager,SIGNAL(finished(QNetworkReply*)),this,SLOT(onPostAnswer(QNetworkReply*)));
+
+    //...Set a current time that we know we are past as the initial
+    //   last notification so we'll always get the first one pushed
+    //   to cell phone
+    this->lastNotification = QDateTime(QDate(2010,1,1),QTime(this->notificationHour,0,0));
+    this->lastHighNotification = this->lastNotification;
+    this->lastCriticalNotification = this->lastNotification;
+
+    this->nextNotification = QDateTime(QDate::currentDate(),QTime(this->notificationHour,0,0));
+    this->nextHighNotification = this->nextNotification;
+    this->nextCriticalNotification = this->nextNotification;
+
 }
 
 Notifier::~Notifier()
@@ -15,6 +27,50 @@ Notifier::~Notifier()
 }
 
 int Notifier::sendMessage(int priority, QString title, QString message)
+{
+    if(priority<1)
+    {
+        if(QDateTime::currentDateTime()>this->nextNotification)
+        {
+            this->lastNotification = this->nextNotification;
+            this->nextNotification = QDateTime(QDate::currentDate().addDays(1),QTime(this->notificationHour,0,0));
+            this->_sendMessage(priority,title,message);
+        }
+        else
+        {
+            qDebug() << "Notification supressed until " << this->nextNotification;
+        }
+    }
+    else if(priority==1)
+    {
+        if(QDateTime::currentDateTime()>this->nextHighNotification)
+        {
+            this->lastHighNotification = QDateTime::currentDateTime();
+            this->nextHighNotification = QDateTime::currentDateTime().addSecs(21600);
+            this->_sendMessage(priority,title,message);
+        }
+        else
+        {
+            qDebug() << "High notification supressed until " << this->nextHighNotification;
+        }
+    }
+    else if(priority==2)
+    {
+        if(QDateTime::currentDateTime()>this->nextCriticalNotification)
+        {
+            this->lastCriticalNotification = QDateTime::currentDateTime();
+            this->nextCriticalNotification = QDateTime::currentDateTime().addSecs(3600);
+            this->_sendMessage(priority,title,message);
+        }
+        else
+        {
+            qDebug() << "Critical notification supressed until " << this->nextCriticalNotification;
+        }
+    }
+    return 0;
+}
+
+int Notifier::_sendMessage(int priority, QString title, QString message)
 {
     QUrl url("https://api.pushover.net/1/messages.json");
     QUrlQuery postData;
@@ -34,7 +90,7 @@ int Notifier::sendMessage(int priority, QString title, QString message)
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
     this->networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
-
+    return 0;
 }
 
 void Notifier::onPostAnswer(QNetworkReply *reply)

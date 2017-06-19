@@ -10,7 +10,7 @@ class WaterLevelMonitor : public QObject
 public:
     explicit WaterLevelMonitor(QObject *parent = 0);
 
-    double getWaterLevel();
+    double getWaterLevel(int &ierr);
 
 signals:
 

@@ -2,7 +2,7 @@
 
 Monitor::Monitor(QObject *parent) : QObject(parent)
 {
-
+    this->pushMessageSender = new Notifier(this);
 }
 
 
@@ -20,6 +20,7 @@ void Monitor::run()
 
 void Monitor::checkStatus()
 {
+    int ierr;
     int priority;
     QString message;
     QString title;
@@ -28,21 +29,29 @@ void Monitor::checkStatus()
 
     //...Check the water level in the sump
     WaterLevelMonitor *waterLevel = new WaterLevelMonitor(this);
-    double wl = waterLevel->getWaterLevel();
+    double wl = waterLevel->getWaterLevel(ierr);
+    if(ierr!=0)
+        endMonitor();
     delete waterLevel;
 
     //...Check the basin float status
     BasinFloatMonitor *basinMonitor = new BasinFloatMonitor(this);
-    bool fl = basinMonitor->getFloatStatus();
+    bool fl = basinMonitor->getFloatStatus(ierr);
+    if(ierr!=0)
+        endMonitor();
     delete basinMonitor;
 
     //...Generate the status messages
     this->generateStatusMessage(fl,wl,priority,title,message);
 
     //...Send the message
-    Notifier *pushMessageSender = new Notifier(this);
-    pushMessageSender->sendMessage(priority,title,message);
-    //connect(pushMessageSender,SIGNAL(finished()),this,SLOT(endMonitor()));
+    ierr = this->pushMessageSender->sendMessage(priority,title,message);
+
+    if(ierr!=0)
+        endMonitor();
+
+    return;
+
 }
 
 

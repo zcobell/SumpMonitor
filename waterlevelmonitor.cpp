@@ -6,8 +6,9 @@ WaterLevelMonitor::WaterLevelMonitor(QObject *parent) : QObject(parent)
 }
 
 
-double WaterLevelMonitor::getWaterLevel()
+double WaterLevelMonitor::getWaterLevel(int &ierr)
 {
+    ierr = 0;
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
 

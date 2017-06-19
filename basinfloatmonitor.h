@@ -9,7 +9,7 @@ class BasinFloatMonitor : public QObject
 public:
     explicit BasinFloatMonitor(QObject *parent = 0);
 
-    bool getFloatStatus();
+    bool getFloatStatus(int &ierr);
 
 signals:
 

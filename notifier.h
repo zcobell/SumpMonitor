@@ -7,6 +7,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QDateTime>
 #include "tokens.h"
 
 #define PRIORITY_LOWEST    -2
@@ -35,6 +36,12 @@ public slots:
 
 private:
     QNetworkAccessManager *networkManager;
+    QDateTime              lastNotification,lastHighNotification,lastCriticalNotification;
+    QDateTime              nextNotification,nextHighNotification,nextCriticalNotification;
+    int                    notificationHour = 19;
+
+    int _sendMessage(int priority, QString title, QString message);
+
 
 };
 

@@ -25,7 +25,8 @@ public slots:
     void endMonitor();
 
 private:
-    int _monitoringInterval = 60000;
+    int _monitoringInterval = 10000; //msec
+    Notifier *pushMessageSender;
 
 };
 
