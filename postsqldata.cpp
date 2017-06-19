@@ -2,7 +2,7 @@
 
 PostSQLData::PostSQLData(QObject *parent) : QObject(parent)
 {
-   this->initDatabase();
+    this->initDatabase();
 }
 
 
@@ -13,10 +13,8 @@ PostSQLData::~PostSQLData()
 
 int PostSQLData::initDatabase()
 {
-    if(this->database.isOpen())
-        this->closeDatabase();
 
-    this->database = QSqlDatabase::addDatabase("QMYSQL");
+    this->database = QSqlDatabase::addDatabase("QMYSQL","sumpdatabase");
     this->database.setHostName(SERVER);
     this->database.setDatabaseName(DBNAME);
     this->database.setUserName(USERNAME);
@@ -32,11 +30,7 @@ int PostSQLData::initDatabase()
 
 int PostSQLData::closeDatabase()
 {
-    if(this->database.isOpen())
-    {
-        this->database.close();
-        QSqlDatabase::removeDatabase(this->database.databaseName());
-    }
+    this->database.close();
     return 0;
 }
 

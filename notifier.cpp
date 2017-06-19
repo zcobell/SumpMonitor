@@ -1,5 +1,4 @@
 #include "notifier.h"
-#include <QDebug>
 
 Notifier::Notifier(QObject *parent) : QObject(parent)
 {
@@ -13,9 +12,9 @@ Notifier::Notifier(QObject *parent) : QObject(parent)
     this->lastHighNotification = this->lastNotification;
     this->lastCriticalNotification = this->lastNotification;
 
-    this->nextNotification = QDateTime(QDate::currentDate(),QTime(this->notificationHour,0,0));
-    this->nextHighNotification = this->nextNotification;
-    this->nextCriticalNotification = this->nextNotification;
+    this->nextNotification = this->lastNotification;
+    this->nextHighNotification = this->lastNotification;
+    this->nextCriticalNotification = this->lastNotification;
 
 }
 
@@ -34,7 +33,7 @@ int Notifier::sendRestartMessage()
     postData.addQueryItem("user",USER_TOKEN);
     postData.addQueryItem("priority",QString::number(0));
     postData.addQueryItem("title","Sump Monitor Restarted");
-    postData.addQueryItem("message",QString("Sump Monitor was restarted at "+QDateTime::currentDateTime().toString("yyyy-mm-dd hh:MM:ss")));
+    postData.addQueryItem("message",QString("Sump Monitor was restarted at "+QDateTime::currentDateTime().toString()));
 
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");

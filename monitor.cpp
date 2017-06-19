@@ -3,6 +3,7 @@
 Monitor::Monitor(QObject *parent) : QObject(parent)
 {
     this->pushMessageSender = new Notifier(this);
+    this->sqlDatabase = new PostSQLData(this);
 }
 
 
@@ -14,6 +15,9 @@ void Monitor::run()
     //...Alter the user that the monitor was restarted
     this->pushMessageSender->sendRestartMessage();
 
+    //...Begin the code to fire every _monitoringInterval
+    //   milliseconds which will probe the status of the
+    //   sump
     QTimer *monitorTimer = new QTimer(this);
     connect(monitorTimer,SIGNAL(timeout()),this,SLOT(checkStatus()));
     connect(this,SIGNAL(monitorError()),monitorTimer,SLOT(stop()));
@@ -45,10 +49,8 @@ void Monitor::checkStatus()
         endMonitor();
     delete basinMonitor;
 
-    //...Post the data to the server
-    PostSQLData *sql = new PostSQLData(this);
-    sql->postData(wl,fl);
-    sql->deleteLater();
+    //...Post data to SQL database on web server
+    this->sqlDatabase->postData(wl,fl);
 
     //...Generate the status messages
     this->generateStatusMessage(fl,wl,priority,title,message);

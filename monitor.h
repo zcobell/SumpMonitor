@@ -28,6 +28,7 @@ public slots:
 private:
     int _monitoringInterval = 10000; //msec
     Notifier *pushMessageSender;
+    PostSQLData *sqlDatabase;
 
 };
 
