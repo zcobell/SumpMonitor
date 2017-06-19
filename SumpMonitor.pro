@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     notifier.cpp \
     monitor.cpp \
     waterlevelmonitor.cpp \
-    basinfloatmonitor.cpp
+    basinfloatmonitor.cpp \
+    mmapGpio.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -31,4 +32,5 @@ HEADERS += \
     notifier.h \
     monitor.h \
     waterlevelmonitor.h \
-    basinfloatmonitor.h
+    basinfloatmonitor.h \
+    mmapGpio.h
