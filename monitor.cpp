@@ -1,4 +1,8 @@
+#include <QObject>
+#include <QTimer>
 #include "monitor.h"
+#include "waterlevelmonitor.h"
+#include "basinfloatmonitor.h"
 
 Monitor::Monitor(QObject *parent) : QObject(parent)
 {

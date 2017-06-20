@@ -1,4 +1,6 @@
+#include <QtSql>
 #include "postsqldata.h"
+#include "tokens.h"
 
 PostSQLData::PostSQLData(QObject *parent) : QObject(parent)
 {

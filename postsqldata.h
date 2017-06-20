@@ -2,9 +2,7 @@
 #define POSTSQLDATA_H
 
 #include <QObject>
-#include <QtSql>
 #include <QSqlDatabase>
-#include "tokens.h"
 
 class PostSQLData : public QObject
 {

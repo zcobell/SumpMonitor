@@ -2,13 +2,8 @@
 #define SENDNOTIFICATION_H
 
 #include <QObject>
-#include <QUrl>
-#include <QUrlQuery>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QDateTime>
-#include "tokens.h"
+#include <QNetworkAccessManager>
 
 #define PRIORITY_LOWEST    -2
 #define PRIORITY_LOW       -1

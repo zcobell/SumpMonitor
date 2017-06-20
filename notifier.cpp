@@ -1,4 +1,9 @@
+#include <QUrl>
+#include <QUrlQuery>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include "notifier.h"
+#include "tokens.h"
 
 Notifier::Notifier(QObject *parent) : QObject(parent)
 {
