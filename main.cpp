@@ -25,12 +25,12 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
-    QCommandLineOption singleOption({{"s","single"},"Run the monitoring rountine only a single time"});
-    QCommandLineOption continuousOption({{"c","continuous"},"Run the monitoring routine continuously as defined by <interval>"});
-    QCommandLineOption intervalOption({{"i","interval"},"Interval in seconds to monitor status when running in continuous mode","seconds"});
-    QCommandLineOption verboseOption({{"q","verbose"},"Write verbose output to screen"});
-    QCommandLineOption notifyOption({{"n","notify"},"Use the push notification system via PushOver"});
-    QCommandLineOption postSqlOption({{"p","post"},"Use the post option to post data to a web SQL server"});
+    QCommandLineOption singleOption(QStringList() << "s" << "single","Run the monitoring rountine only a single time");
+    QCommandLineOption continuousOption(QStringList() << "c" << "continuous","Run the monitoring routine continuously as defined by <interval>");
+    QCommandLineOption intervalOption(QStringList() << "i" << "interval","Interval in seconds to monitor status when running in continuous mode","seconds");
+    QCommandLineOption verboseOption(QStringList() << "q" << "verbose","Write verbose output to screen");
+    QCommandLineOption notifyOption(QStringList() << "n" << "notify","Use the push notification system via PushOver");
+    QCommandLineOption postSqlOption(QStringList() << "p" << "post","Use the post option to post data to a web SQL server");
     
     intervalOption.setDefaultValue("60");
 

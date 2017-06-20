@@ -24,9 +24,11 @@ void Monitor::run()
 
     if(this->_verbose)
         out << "Starting the monitoring routine...\n";
+        out.flush();
 
     //...Alter the user that the monitor was restarted
-    this->pushMessageSender->sendRestartMessage();
+    if(this->_notifications)
+        this->pushMessageSender->sendRestartMessage();
 
     //...Begin the code to fire every _monitoringInterval
     //   milliseconds which will probe the status of the
@@ -39,7 +41,10 @@ void Monitor::run()
         monitorTimer->start(this->_monitoringInterval);
     }
     else
+    {    
         this->checkStatus();
+        this->endMonitor();
+    }
 
 }
 
@@ -86,15 +91,18 @@ void Monitor::checkStatus()
     //...Log message to screen
     if(this->_verbose)
     {
+        QString wls;
+        wls.sprintf("%6.2f",wl);
         out << QString("|-------------------------------------------------------------| \n");
-        out << QString("|  Sump Status @ "+QDateTime::currentDateTime().toString()+"\n");
-        out << QString("|");
-        out << QString("|      Water Level: "+QString::number(wl));
+        out << QString("|  Sump Status @ "+QDateTime::currentDateTime().toString()+"                     |\n");
+        out << QString("|                                                             |\n");
+        out << QString("|      Water Level: "+wls+"                                    |\n");
         if(fl)
-            out << QString("|     Float Status: Triggered");
+            out << QString("|     Float Status: Triggered                                 |\n");
         else
-            out << QString("|     Float Status: Not Triggered");
-        out << QString("|-------------------------------------------------------------| \n");
+            out << QString("|     Float Status: Not Triggered                             |\n");
+        out << QString("|-------------------------------------------------------------| \n\n");
+        out.flush();
     }
 
     return;
