@@ -188,8 +188,8 @@ volatile unsigned *mmapGpio::mapRegAddr(unsigned long baseAddr){
 
   /* open /dev/mem.....need to run program as root i.e. use sudo or su */
   if (!mem_fd) {
-    if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0) {
-     perror("can't open /dev/mem");
+    if ((mem_fd = open("/dev/gpiomem", O_RDWR|O_SYNC) ) < 0) {
+     perror("can't open /dev/gpiomem");
       exit (1);
     }
   }
@@ -212,7 +212,7 @@ volatile unsigned *mmapGpio::mapRegAddr(unsigned long baseAddr){
   
   if(close(mem_fd) < 0){ //No need to keep mem_fd open after mmap
                          //i.e. we can close /dev/mem
-	perror("couldn't close /dev/mem file descriptor");
+	perror("couldn't close /dev/gpiomem file descriptor");
     exit(1);
 	}	
   return (volatile unsigned *)regAddrMap;

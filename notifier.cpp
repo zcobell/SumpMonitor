@@ -24,6 +24,17 @@ Notifier::~Notifier()
     disconnect(this->networkManager,SIGNAL(finished(QNetworkReply*)),this,SLOT(onPostAnswer(QNetworkReply*)));
 }
 
+#if NOTIFIER_NOSEND == 1
+int Notifier::sendRestartMessage()
+{
+    return 0;
+}
+
+int Notifier::sendMessage(int priority, QString title, QString message)
+{
+    return 0;
+}
+#else
 int Notifier::sendRestartMessage()
 {
     QUrl url("https://api.pushover.net/1/messages.json");
@@ -84,6 +95,7 @@ int Notifier::sendMessage(int priority, QString title, QString message)
     }
     return 0;
 }
+#endif
 
 int Notifier::_sendMessage(int priority, QString title, QString message)
 {

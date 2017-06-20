@@ -19,6 +19,8 @@
 #define EMERGENCY_RETRY     600
 #define EMERGENCY_EXPIRE    86400
 
+#define NOTIFIER_NOSEND       1
+
 class Notifier : public QObject
 {
     Q_OBJECT

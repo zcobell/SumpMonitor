@@ -1,5 +1,7 @@
 #include "waterlevelmonitor.h"
 #include <QDebug>
+#include <unistd.h>
+#include <QElapsedTimer>
 
 WaterLevelMonitor::WaterLevelMonitor(QObject *parent) : QObject(parent)
 {
@@ -11,8 +13,16 @@ double WaterLevelMonitor::getWaterLevel(int &ierr)
 {
     ierr = 0;
 
-    quint64 pulse_start,pulse_end,pulse_duration;
+    struct timespec tim, tim2;
+    tim.tv_sec  = 0;
+    tim.tv_nsec = 10000L;
+
+    double pulse_duration;
     double distance;
+    QElapsedTimer timer;
+
+    pulse_duration = 0;
+    distance       = 0.0;
 
     //...Map the input and output pins
     mmapGpio rpiGpio;
@@ -25,22 +35,24 @@ double WaterLevelMonitor::getWaterLevel(int &ierr)
 
     //...Send the sound wave
     rpiGpio.writePinHigh(this->_triggerPin);
-    QThread::msleep(1);
+    nanosleep(&tim,&tim2); 
     rpiGpio.writePinLow(this->_triggerPin);
 
     //...Recieve the beginning of the sound wave
     while(rpiGpio.readPin(this->_echoPin)==mmapGpio::LOW)
-        pulse_start = QDateTime::currentMSecsSinceEpoch();
+
+    //...Start the timer
+    timer.start();
 
     //...Recieve the end of the sound wave
     while(rpiGpio.readPin(this->_echoPin)==mmapGpio::HIGH)
-        pulse_end   = QDateTime::currentMSecsSinceEpoch();
 
-    //...Calculate the distance to the object in cm
-    pulse_duration = pulse_end - pulse_start;
-    distance       = pulse_duration * 17150.0;
+    //...Stop the timer
+    pulse_duration = timer.nsecsElapsed()*1e-9;
 
-    qDebug() << distance;
+    //...Calculate the distance to the object in ft
+    distance       = pulse_duration * 17150.0 / 30.48;
 
-
+    //...Return the distance to the object
+    return distance;
 }
