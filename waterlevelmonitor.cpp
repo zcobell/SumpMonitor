@@ -5,9 +5,10 @@
 #include "waterlevelmonitor.h"
 #include "mmapGpio.h"
 
-WaterLevelMonitor::WaterLevelMonitor(QObject *parent) : QObject(parent)
+WaterLevelMonitor::WaterLevelMonitor(int n, QObject *parent) : QObject(parent)
 {
     this->_speedOfSound = this->speedOfSound(this->fahrenheit2Celcius(this->_temperature));
+    this->_nProbes = n;
 }
 
 

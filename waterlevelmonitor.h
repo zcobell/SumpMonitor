@@ -7,7 +7,7 @@ class WaterLevelMonitor : public QObject
 {
     Q_OBJECT
 public:
-    explicit WaterLevelMonitor(QObject *parent = 0);
+    explicit WaterLevelMonitor(int n, QObject *parent = 0);
 
     //...Function that performs a series
     //   of measurements and averages the 
@@ -21,7 +21,7 @@ private:
     int _triggerPin     = 23;
     int _echoPin        = 24;
 
-    int _nProbes        = 5;
+    int _nProbes;
 
     double _temperature  = 65; //...Temperature in degrees fahrenheit
     double _speedOfSound;

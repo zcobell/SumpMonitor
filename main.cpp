@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     QCoreApplication::setApplicationName("SumpMonitor");
-    QCoreApplication::setApplicationVersion("0.0.1");
+    QCoreApplication::setApplicationVersion(GIT_VERSION);
     QCommandLineParser parser;
 
     QTextStream out(stdout,QIODevice::WriteOnly);
@@ -27,12 +27,14 @@ int main(int argc, char *argv[])
 
     QCommandLineOption singleOption(QStringList() << "s" << "single","Run the monitoring rountine only a single time");
     QCommandLineOption continuousOption(QStringList() << "c" << "continuous","Run the monitoring routine continuously as defined by <interval>");
-    QCommandLineOption intervalOption(QStringList() << "i" << "interval","Interval in seconds to monitor status when running in continuous mode","seconds");
+    QCommandLineOption intervalOption(QStringList() << "i" << "interval","Interval in seconds to monitor status when running in continuous mode [default=60]","seconds");
     QCommandLineOption verboseOption(QStringList() << "q" << "verbose","Write verbose output to screen");
     QCommandLineOption notifyOption(QStringList() << "n" << "notify","Use the push notification system via PushOver");
     QCommandLineOption postSqlOption(QStringList() << "p" << "post","Use the post option to post data to a web SQL server");
+    QCommandLineOption averagingOption(QStringList() << "a" << "average","Average a number of measurements of water level to reduce noise [default=5]","n");
     
     intervalOption.setDefaultValue("60");
+    averagingOption.setDefaultValue("5");
 
     parser.addOption(singleOption);
     parser.addOption(continuousOption);
@@ -40,6 +42,7 @@ int main(int argc, char *argv[])
     parser.addOption(verboseOption);
     parser.addOption(notifyOption);
     parser.addOption(postSqlOption);
+    parser.addOption(averagingOption);
 
     //...Process command line arguments
     parser.process(a);
@@ -59,6 +62,8 @@ int main(int argc, char *argv[])
     isNotifySet     = parser.isSet(notifyOption);
     isPostSet       = parser.isSet(postSqlOption);
 
+    int navg        = parser.value(averagingOption).toInt();
+
     if(isSingleSet&&isContinuousSet)
     {
         out << "ERROR: Only one operation mode may be selected. Either single or continuous\n";
@@ -75,7 +80,7 @@ int main(int argc, char *argv[])
 
     if(isSingleSet)
     {
-        Monitor *sumpMonitor = new Monitor(0,false,isVerboseSet,isNotifySet,isPostSet,&a);
+        Monitor *sumpMonitor = new Monitor(0,navg,false,isVerboseSet,isNotifySet,isPostSet,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
         return a.exec();
@@ -84,7 +89,7 @@ int main(int argc, char *argv[])
     if(isContinuousSet)
     {
         int interval = parser.value(intervalOption).toInt();
-        Monitor *sumpMonitor = new Monitor(interval,true,isVerboseSet,isNotifySet,isPostSet,&a);
+        Monitor *sumpMonitor = new Monitor(interval,navg,true,isVerboseSet,isNotifySet,isPostSet,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
         return a.exec();

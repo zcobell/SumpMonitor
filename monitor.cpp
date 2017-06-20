@@ -5,7 +5,7 @@
 #include "waterlevelmonitor.h"
 #include "basinfloatmonitor.h"
 
-Monitor::Monitor(int monitoringInterval, bool continuous, bool verbose, bool notifications, bool postData, QObject *parent) : QObject(parent)
+Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool verbose, bool notifications, bool postData, QObject *parent) : QObject(parent)
 {
     this->pushMessageSender = new Notifier(this);
     this->sqlDatabase = new PostSQLData(this);
@@ -14,6 +14,7 @@ Monitor::Monitor(int monitoringInterval, bool continuous, bool verbose, bool not
     this->_verbose = verbose;
     this->_notifications = notifications;
     this->_postData = postData;
+    this->_navg = navg;
 }
 
 
@@ -59,7 +60,7 @@ void Monitor::checkStatus()
     QTextStream out(stdout,QIODevice::WriteOnly);
     
     //...Check the water level in the sump
-    WaterLevelMonitor *waterLevel = new WaterLevelMonitor(this);
+    WaterLevelMonitor *waterLevel = new WaterLevelMonitor(this->_navg,this);
     double wl = waterLevel->getWaterLevel(ierr);
     if(ierr!=0)
         endMonitor();

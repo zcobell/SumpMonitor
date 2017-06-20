@@ -8,7 +8,7 @@ class Monitor : public QObject
 {
     Q_OBJECT
 public:
-    explicit Monitor(int monitoringInterval, bool continuous, bool verbose, bool notifications, bool postData, QObject *parent = 0);
+    explicit Monitor(int monitoringInterval, int navg, bool continuous, bool verbose, bool notifications, bool postData, QObject *parent = 0);
 
 signals:
     void finished();
@@ -21,6 +21,7 @@ public slots:
 
 private:
     int _monitoringInterval;
+    int _navg;
     bool _continuous;
     bool _verbose;
     bool _notifications;
