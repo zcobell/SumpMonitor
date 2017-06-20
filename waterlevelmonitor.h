@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QTime>
+#include <QThread>
+#include "mmapGpio.h"
 
 class WaterLevelMonitor : public QObject
 {
@@ -19,6 +21,9 @@ public slots:
 private:
     int _highWaterLevel = 10;
     int _lowWaterLevel  = 0;
+
+    int _triggerPin     = 23;
+    int _echoPin        = 24;
 
 };
 
