@@ -1,20 +1,29 @@
 #include <QObject>
 #include <QTimer>
+#include <stdio.h>
 #include "monitor.h"
 #include "waterlevelmonitor.h"
 #include "basinfloatmonitor.h"
 
-Monitor::Monitor(QObject *parent) : QObject(parent)
+Monitor::Monitor(int monitoringInterval, bool continuous, bool verbose, bool notifications, bool postData, QObject *parent) : QObject(parent)
 {
     this->pushMessageSender = new Notifier(this);
     this->sqlDatabase = new PostSQLData(this);
+    this->_monitoringInterval = monitoringInterval*1000;
+    this->_continuous = continuous;
+    this->_verbose = verbose;
+    this->_notifications = notifications;
+    this->_postData = postData;
 }
 
 
 void Monitor::run()
 {
 
-    qDebug() << "Starting the monitoring routine...";
+    QTextStream out(stdout,QIODevice::WriteOnly);
+
+    if(this->_verbose)
+        out << "Starting the monitoring routine...\n";
 
     //...Alter the user that the monitor was restarted
     this->pushMessageSender->sendRestartMessage();
@@ -22,10 +31,15 @@ void Monitor::run()
     //...Begin the code to fire every _monitoringInterval
     //   milliseconds which will probe the status of the
     //   sump
-    QTimer *monitorTimer = new QTimer(this);
-    connect(monitorTimer,SIGNAL(timeout()),this,SLOT(checkStatus()));
-    connect(this,SIGNAL(monitorError()),monitorTimer,SLOT(stop()));
-    monitorTimer->start(this->_monitoringInterval);
+    if(this->_continuous)
+    {
+        QTimer *monitorTimer = new QTimer(this);
+        connect(monitorTimer,SIGNAL(timeout()),this,SLOT(checkStatus()));
+        connect(this,SIGNAL(monitorError()),monitorTimer,SLOT(stop()));
+        monitorTimer->start(this->_monitoringInterval);
+    }
+    else
+        this->checkStatus();
 
 }
 
@@ -37,8 +51,8 @@ void Monitor::checkStatus()
     QString message;
     QString title;
 
-    qDebug() << "Checking status at" << QDateTime::currentDateTime();
-
+    QTextStream out(stdout,QIODevice::WriteOnly);
+    
     //...Check the water level in the sump
     WaterLevelMonitor *waterLevel = new WaterLevelMonitor(this);
     double wl = waterLevel->getWaterLevel(ierr);
@@ -54,16 +68,34 @@ void Monitor::checkStatus()
     delete basinMonitor;
 
     //...Post data to SQL database on web server
-    this->sqlDatabase->postData(wl,fl);
+    if(this->_postData)
+        this->sqlDatabase->postData(wl,fl);
 
     //...Generate the status messages
-    this->generateStatusMessage(fl,wl,priority,title,message);
+    if(this->_notifications)
+    {
+        this->generateStatusMessage(fl,wl,priority,title,message);
 
-    //...Send the message
-    ierr = this->pushMessageSender->sendMessage(priority,title,message);
+        //...Send the message
+        ierr = this->pushMessageSender->sendMessage(priority,title,message);
 
-    if(ierr!=0)
-        endMonitor();
+        if(ierr!=0)
+            endMonitor();
+    }
+
+    //...Log message to screen
+    if(this->_verbose)
+    {
+        out << QString("|-------------------------------------------------------------| \n");
+        out << QString("|  Sump Status @ "+QDateTime::currentDateTime().toString()+"\n");
+        out << QString("|");
+        out << QString("|      Water Level: "+QString::number(wl));
+        if(fl)
+            out << QString("|     Float Status: Triggered");
+        else
+            out << QString("|     Float Status: Not Triggered");
+        out << QString("|-------------------------------------------------------------| \n");
+    }
 
     return;
 

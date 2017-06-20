@@ -8,9 +8,7 @@ class Monitor : public QObject
 {
     Q_OBJECT
 public:
-    explicit Monitor(QObject *parent = 0);
-
-    int generateStatusMessage(bool floatStatus, double waterLevel, int &priority, QString &title, QString &message);
+    explicit Monitor(int monitoringInterval, bool continuous, bool verbose, bool notifications, bool postData, QObject *parent = 0);
 
 signals:
     void finished();
@@ -22,9 +20,15 @@ public slots:
     void endMonitor();
 
 private:
-    int _monitoringInterval = 10000; //msec
+    int _monitoringInterval;
+    bool _continuous;
+    bool _verbose;
+    bool _notifications;
+    bool _postData;
     Notifier *pushMessageSender;
     PostSQLData *sqlDatabase;
+    
+    int generateStatusMessage(bool floatStatus, double waterLevel, int &priority, QString &title, QString &message);
 
 };
 
