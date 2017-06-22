@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
     
     bool isSingleSet,isContinuousSet,isVerboseSet;
-    bool isNotifySet,isPostSet;
+    bool isNotifySet,isPostSet,useUltrasonic,useFloat;
 
     int defaultPollingInterval = 60;
     int defaultAveragingValue  = 5;
@@ -45,9 +45,15 @@ int main(int argc, char *argv[])
     QCommandLineOption averagingOption(QStringList() << "a" << "average",
         "Average a number of measurements of water level to reduce noise [default="+
         QString::number(defaultAveragingValue)+"]","n");
+    QCommandLineOption ultrasonicOption(QStringList() << "u" << "ultrasonic",
+        "Use the ultrasonic sensor to track the water level [default=no]","yes/no");
+    QCommandLineOption floatOption(QStringList() << "f" << "float",
+        "Use the float sensor to determine when water has exceeded a threshold [default=yes]","yes/no");
     
     intervalOption.setDefaultValue(QString::number(defaultPollingInterval));
     averagingOption.setDefaultValue(QString::number(defaultAveragingValue));
+    ultrasonicOption.setDefaultValue("no");
+    floatOption.setDefaultValue("yes");
 
     parser.addOption(singleOption);
     parser.addOption(continuousOption);
@@ -56,6 +62,8 @@ int main(int argc, char *argv[])
     parser.addOption(notifyOption);
     parser.addOption(postSqlOption);
     parser.addOption(averagingOption);
+    parser.addOption(ultrasonicOption);
+    parser.addOption(floatOption);
 
     //...Process command line arguments
     parser.process(a);
@@ -77,6 +85,16 @@ int main(int argc, char *argv[])
 
     int navg        = parser.value(averagingOption).toInt();
 
+    if(parser.value(ultrasonicOption)=="yes")
+        useUltrasonic = true;
+    else
+        useUltrasonic = false;
+
+    if(parser.value(floatOption)=="yes")
+        useFloat = true;
+    else
+        useFloat = false;
+
     if(isSingleSet&&isContinuousSet)
     {
         out << "ERROR: Only one operation mode may be selected. Either single or continuous\n";
@@ -93,7 +111,8 @@ int main(int argc, char *argv[])
 
     if(isSingleSet)
     {
-        Monitor *sumpMonitor = new Monitor(0,navg,false,isVerboseSet,isNotifySet,isPostSet,&a);
+        Monitor *sumpMonitor = new Monitor(0,navg,false,isVerboseSet,isNotifySet,isPostSet,
+                                           useUltrasonic,useFloat,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
         return a.exec();
@@ -102,7 +121,8 @@ int main(int argc, char *argv[])
     if(isContinuousSet)
     {
         int interval = parser.value(intervalOption).toInt();
-        Monitor *sumpMonitor = new Monitor(interval,navg,true,isVerboseSet,isNotifySet,isPostSet,&a);
+        Monitor *sumpMonitor = new Monitor(interval,navg,true,isVerboseSet,isNotifySet,isPostSet,
+                                           useUltrasonic,useFloat,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
         return a.exec();

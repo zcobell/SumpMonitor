@@ -5,7 +5,8 @@
 #include "waterlevelmonitor.h"
 #include "basinfloatmonitor.h"
 
-Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool verbose, bool notifications, bool postData, QObject *parent) : QObject(parent)
+Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool verbose, bool notifications, bool postData,
+                 bool ultrasonicSensor, bool floatSensor, QObject *parent) : QObject(parent)
 {
     this->pushMessageSender = new Notifier(this);
     this->sqlDatabase = new PostSQLData(this);
@@ -15,6 +16,8 @@ Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool verbose
     this->_notifications = notifications;
     this->_postData = postData;
     this->_navg = navg;
+    this->_useUltrasonic = ultrasonicSensor;
+    this->_useFloat = floatSensor;
 }
 
 
@@ -24,8 +27,10 @@ void Monitor::run()
     QTextStream out(stdout,QIODevice::WriteOnly);
 
     if(this->_verbose)
+    {
         out << "Starting the monitoring routine...\n";
         out.flush();
+    }
 
     //...Alter the user that the monitor was restarted
     if(this->_notifications)
@@ -54,24 +59,36 @@ void Monitor::checkStatus()
 {
     int ierr;
     int priority;
+    double wl;
+    bool fl;
     QString message;
     QString title;
 
     QTextStream out(stdout,QIODevice::WriteOnly);
     
     //...Check the water level in the sump
-    WaterLevelMonitor *waterLevel = new WaterLevelMonitor(this->_navg,this);
-    double wl = waterLevel->getWaterLevel(ierr);
-    if(ierr!=0)
-        endMonitor();
-    delete waterLevel;
+    if(this->_useUltrasonic)
+    {
+        WaterLevelMonitor *waterLevel = new WaterLevelMonitor(this->_navg,this);
+        wl = waterLevel->getWaterLevel(ierr);
+        if(ierr!=0)
+            endMonitor();
+        delete waterLevel;
+    }
+    else
+        wl = 0.0;
 
     //...Check the basin float status
-    BasinFloatMonitor *basinMonitor = new BasinFloatMonitor(this);
-    bool fl = basinMonitor->getFloatStatus(ierr);
-    if(ierr!=0)
-        endMonitor();
-    delete basinMonitor;
+    if(this->_useFloat)
+    {
+        BasinFloatMonitor *basinMonitor = new BasinFloatMonitor(this);
+        fl = basinMonitor->getFloatStatus(ierr);
+        if(ierr!=0)
+            endMonitor();
+        delete basinMonitor;
+    }
+    else
+        fl = false;
 
     //...Post data to SQL database on web server
     if(this->_postData)
