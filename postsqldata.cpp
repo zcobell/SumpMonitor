@@ -16,7 +16,7 @@ PostSQLData::~PostSQLData()
 int PostSQLData::initDatabase()
 {
 
-    this->database = QSqlDatabase::addDatabase("QMYSQL","sumpdatabase");
+    this->database = QSqlDatabase::addDatabase("QMYSQL");
     this->database.setHostName(SERVER);
     this->database.setDatabaseName(DBNAME);
     this->database.setUserName(USERNAME);
@@ -41,6 +41,16 @@ void PostSQLData::postData(double waterlevel, bool floatstatus)
 {
     QString sqlString,sqlData;
     QString wl,fs;
+    int ierr;
+
+    ierr = this->checkDatabaseConnection();
+    if(ierr==1)
+    {
+        ierr = this->closeDatabase();
+        ierr = this->initDatabase();
+        if(ierr!=0)
+        return;
+    }
 
     wl.sprintf("%0.4f",waterlevel);
 
@@ -60,3 +70,12 @@ void PostSQLData::postData(double waterlevel, bool floatstatus)
 
 }
 
+int PostSQLData::checkDatabaseConnection()
+{
+    this->database.exec("SELECT 1;");
+
+    if(this->database.lastError().type()==QSqlError::NoError)
+        return 0;
+    else
+        return -1;
+}

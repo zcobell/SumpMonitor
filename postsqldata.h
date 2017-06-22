@@ -20,6 +20,7 @@ private:
 
     int initDatabase();
     int closeDatabase();
+    int checkDatabaseConnection();
     QSqlDatabase database;
 
 };

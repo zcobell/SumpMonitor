@@ -11,6 +11,9 @@ int main(int argc, char *argv[])
     bool isSingleSet,isContinuousSet,isVerboseSet;
     bool isNotifySet,isPostSet;
 
+    int defaultPollingInterval = 60;
+    int defaultAveragingValue  = 5;
+
     QCoreApplication a(argc, argv);
 
     QCoreApplication::setApplicationName("SumpMonitor");
@@ -21,20 +24,30 @@ int main(int argc, char *argv[])
 
     //...Set up the command line parser
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
-    parser.setApplicationDescription("Real Time Sump Pump Monitoring Using Raspberry Pi \nAuthor: Zach Cobell");
+    parser.setApplicationDescription(
+        "Real Time Sump Pump Monitoring Using Raspberry Pi \n\nAuthor: Zach Cobell");
     parser.addHelpOption();
     parser.addVersionOption();
 
-    QCommandLineOption singleOption(QStringList() << "s" << "single","Run the monitoring rountine only a single time");
-    QCommandLineOption continuousOption(QStringList() << "c" << "continuous","Run the monitoring routine continuously as defined by <interval>");
-    QCommandLineOption intervalOption(QStringList() << "i" << "interval","Interval in seconds to monitor status when running in continuous mode [default=60]","seconds");
-    QCommandLineOption verboseOption(QStringList() << "q" << "verbose","Write verbose output to screen");
-    QCommandLineOption notifyOption(QStringList() << "n" << "notify","Use the push notification system via PushOver");
-    QCommandLineOption postSqlOption(QStringList() << "p" << "post","Use the post option to post data to a web SQL server");
-    QCommandLineOption averagingOption(QStringList() << "a" << "average","Average a number of measurements of water level to reduce noise [default=5]","n");
+    QCommandLineOption singleOption(QStringList() << "s" << "single",
+        "Run the monitoring rountine only a single time");
+    QCommandLineOption continuousOption(QStringList() << "c" << "continuous",
+        "Run the monitoring routine continuously as defined by <interval>");
+    QCommandLineOption intervalOption(QStringList() << "i" << "interval",
+        "Interval in seconds to monitor status when running in continuous mode [default="+
+        QString::number(defaultPollingInterval)+"]","seconds");
+    QCommandLineOption verboseOption(QStringList() << "q" << "verbose",
+        "Write verbose output to screen");
+    QCommandLineOption notifyOption(QStringList() << "n" << "notify",
+        "Use the push notification system via PushOver");
+    QCommandLineOption postSqlOption(QStringList() << "p" << "post",
+        "Post data to a SQL web server");
+    QCommandLineOption averagingOption(QStringList() << "a" << "average",
+        "Average a number of measurements of water level to reduce noise [default="+
+        QString::number(defaultAveragingValue)+"]","n");
     
-    intervalOption.setDefaultValue("60");
-    averagingOption.setDefaultValue("5");
+    intervalOption.setDefaultValue(QString::number(defaultPollingInterval));
+    averagingOption.setDefaultValue(QString::number(defaultAveragingValue));
 
     parser.addOption(singleOption);
     parser.addOption(continuousOption);
