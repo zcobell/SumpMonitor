@@ -14,6 +14,10 @@ public:
 signals:
 
 public slots:
+
+private:
+    int _floatPin = 4;
+
 };
 
 #endif // BASINFLOATMONITOR_H
