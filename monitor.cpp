@@ -72,7 +72,7 @@ void Monitor::checkStatus()
         WaterLevelMonitor *waterLevel = new WaterLevelMonitor(this->_navg,this);
         wl = waterLevel->getWaterLevel(ierr);
         if(ierr!=0)
-            endMonitor();
+            wl = 0.0;
         delete waterLevel;
     }
     else
@@ -84,7 +84,7 @@ void Monitor::checkStatus()
         BasinFloatMonitor *basinMonitor = new BasinFloatMonitor(this);
         fl = basinMonitor->getFloatStatus(ierr);
         if(ierr!=0)
-            endMonitor();
+            fl = false;
         delete basinMonitor;
     }
     else

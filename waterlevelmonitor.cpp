@@ -42,6 +42,8 @@ double WaterLevelMonitor::_probeWaterLevel(int &ierr)
     double distance;
     QElapsedTimer timer;
 
+    ierr = 0;
+
     pulse_duration = 0;
     distance       = 0.0;
 
@@ -78,6 +80,11 @@ double WaterLevelMonitor::_probeWaterLevel(int &ierr)
     delete rpiGpio;
 
     //...Return the distance to the object
+    //   and determine if we think this 
+    //   measurement is valid (i.e. > 8ft is bogus)
+    if(distance>8.0)
+        ierr = -1;
+
     return distance;
 
 }
