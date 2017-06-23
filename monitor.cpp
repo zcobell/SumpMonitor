@@ -44,6 +44,11 @@ void Monitor::run()
         QTimer *monitorTimer = new QTimer(this);
         connect(monitorTimer,SIGNAL(timeout()),this,SLOT(checkStatus()));
         connect(this,SIGNAL(monitorError()),monitorTimer,SLOT(stop()));
+
+        //...Call the status routine the first time
+        this->checkStatus();
+
+        //...Now call the status routine every _montitoringInterval seconds
         monitorTimer->start(this->_monitoringInterval);
     }
     else
