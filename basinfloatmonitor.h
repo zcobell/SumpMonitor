@@ -2,6 +2,7 @@
 #define BASINFLOATMONITOR_H
 
 #include <QObject>
+#include "pins.h"
 
 class BasinFloatMonitor : public QObject
 {
@@ -16,7 +17,7 @@ signals:
 public slots:
 
 private:
-    int _floatPin = 4;
+    int _floatPin = FLOAT_PIN;
 
 };
 

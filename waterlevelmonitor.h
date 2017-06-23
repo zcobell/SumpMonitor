@@ -2,6 +2,7 @@
 #define WATERLEVELMONITOR_H
 
 #include <QObject>
+#include "pins.h"
 
 class WaterLevelMonitor : public QObject
 {
@@ -18,8 +19,8 @@ private:
     int _highWaterLevel = 10;
     int _lowWaterLevel  = 0;
 
-    int _triggerPin     = 23;
-    int _echoPin        = 24;
+    int _triggerPin     = ULTRASONIC_TRIGGER;
+    int _echoPin        = ULTRASONIC_ECHO;
 
     int _nProbes;
 

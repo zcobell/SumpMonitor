@@ -49,11 +49,14 @@ int main(int argc, char *argv[])
         "Use the ultrasonic sensor to track the water level [default=no]","yes/no");
     QCommandLineOption floatOption(QStringList() << "f" << "float",
         "Use the float sensor to determine when water has exceeded a threshold [default=yes]","yes/no");
+    QCommandLineOption notificationHourOption(QStringList() << "t" << "time",
+        "Hour of the day to send a daily status confirmation. Useful in determining if the system has gone offline [default=8]","1-24");
     
     intervalOption.setDefaultValue(QString::number(defaultPollingInterval));
     averagingOption.setDefaultValue(QString::number(defaultAveragingValue));
     ultrasonicOption.setDefaultValue("no");
     floatOption.setDefaultValue("yes");
+    notificationHourOption.setDefaultValue("8");
 
     parser.addOption(singleOption);
     parser.addOption(continuousOption);
@@ -64,6 +67,7 @@ int main(int argc, char *argv[])
     parser.addOption(averagingOption);
     parser.addOption(ultrasonicOption);
     parser.addOption(floatOption);
+    parser.addOption(notificationHourOption);
 
     //...Process command line arguments
     parser.process(a);
@@ -95,6 +99,8 @@ int main(int argc, char *argv[])
     else
         useFloat = false;
 
+    int hour = parser.value(notificationHourOption).toInt();
+
     if(isSingleSet&&isContinuousSet)
     {
         out << "ERROR: Only one operation mode may be selected. Either single or continuous\n";
@@ -112,7 +118,7 @@ int main(int argc, char *argv[])
     if(isSingleSet)
     {
         Monitor *sumpMonitor = new Monitor(0,navg,false,isVerboseSet,isNotifySet,isPostSet,
-                                           useUltrasonic,useFloat,&a);
+                                           useUltrasonic,useFloat,hour,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
         return a.exec();
@@ -122,7 +128,7 @@ int main(int argc, char *argv[])
     {
         int interval = parser.value(intervalOption).toInt();
         Monitor *sumpMonitor = new Monitor(interval,navg,true,isVerboseSet,isNotifySet,isPostSet,
-                                           useUltrasonic,useFloat,&a);
+                                           useUltrasonic,useFloat,hour,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
         return a.exec();

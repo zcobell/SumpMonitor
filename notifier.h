@@ -18,7 +18,7 @@ class Notifier : public QObject
 {
     Q_OBJECT
 public:
-    explicit Notifier(QObject *parent = 0);
+    explicit Notifier(int notificationHour, QObject *parent = 0);
     ~Notifier();
 
     int sendMessage(int priority, QString title, QString message);
@@ -32,10 +32,10 @@ public slots:
     void onPostAnswer(QNetworkReply *reply);
 
 private:
-    QNetworkAccessManager *networkManager;
-    QDateTime              lastNotification,lastHighNotification,lastCriticalNotification;
-    QDateTime              nextNotification,nextHighNotification,nextCriticalNotification;
-    int                    notificationHour = 19;
+    QNetworkAccessManager *_networkManager;
+    QDateTime              _lastNotification,_lastHighNotification,_lastCriticalNotification;
+    QDateTime              _nextNotification,_nextHighNotification,_nextCriticalNotification;
+    int                    _notificationHour;
 
     int _sendMessage(int priority, QString title, QString message);
 
