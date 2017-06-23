@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     
-    bool isSingleSet,isContinuousSet,isVerboseSet;
+    bool isSingleSet,isContinuousSet,isQuietSet;
     bool isNotifySet,isPostSet,useUltrasonic,useFloat;
 
     int defaultPollingInterval = 60;
@@ -29,6 +29,8 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
+    QCommandLineOption quietOption(QStringList() << "q" << "quiet",
+        "Do not write unnessary outout to the scree");
     QCommandLineOption singleOption(QStringList() << "s" << "single",
         "Run the monitoring rountine only a single time");
     QCommandLineOption continuousOption(QStringList() << "c" << "continuous",
@@ -36,8 +38,6 @@ int main(int argc, char *argv[])
     QCommandLineOption intervalOption(QStringList() << "i" << "interval",
         "Interval in seconds to monitor status when running in continuous mode [default="+
         QString::number(defaultPollingInterval)+"]","seconds");
-    QCommandLineOption verboseOption(QStringList() << "q" << "verbose",
-        "Write verbose output to screen");
     QCommandLineOption notifyOption(QStringList() << "n" << "notify",
         "Use the push notification system via PushOver");
     QCommandLineOption postSqlOption(QStringList() << "p" << "post",
@@ -58,10 +58,10 @@ int main(int argc, char *argv[])
     floatOption.setDefaultValue("yes");
     notificationHourOption.setDefaultValue("8");
 
+    parser.addOption(quietOption);
     parser.addOption(singleOption);
     parser.addOption(continuousOption);
     parser.addOption(intervalOption);
-    parser.addOption(verboseOption);
     parser.addOption(notifyOption);
     parser.addOption(postSqlOption);
     parser.addOption(averagingOption);
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     //...Find out which options were selected
     isSingleSet     = parser.isSet(singleOption);
     isContinuousSet = parser.isSet(continuousOption);
-    isVerboseSet    = parser.isSet(verboseOption);
+    isQuietSet      = parser.isSet(quietOption);
     isNotifySet     = parser.isSet(notifyOption);
     isPostSet       = parser.isSet(postSqlOption);
 
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
     if(isSingleSet)
     {
-        Monitor *sumpMonitor = new Monitor(0,navg,false,isVerboseSet,isNotifySet,isPostSet,
+        Monitor *sumpMonitor = new Monitor(0,navg,false,isQuietSet,isNotifySet,isPostSet,
                                            useUltrasonic,useFloat,hour,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     if(isContinuousSet)
     {
         int interval = parser.value(intervalOption).toInt();
-        Monitor *sumpMonitor = new Monitor(interval,navg,true,isVerboseSet,isNotifySet,isPostSet,
+        Monitor *sumpMonitor = new Monitor(interval,navg,true,isQuietSet,isNotifySet,isPostSet,
                                            useUltrasonic,useFloat,hour,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));

@@ -5,14 +5,14 @@
 #include "waterlevelmonitor.h"
 #include "basinfloatmonitor.h"
 
-Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool verbose, bool notifications, bool postData,
+Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, bool notifications, bool postData,
                  bool ultrasonicSensor, bool floatSensor, int notificationHour, QObject *parent) : QObject(parent)
 {
     this->pushMessageSender = new Notifier(notificationHour, this);
     this->sqlDatabase = new PostSQLData(this);
     this->_monitoringInterval = monitoringInterval*1000;
     this->_continuous = continuous;
-    this->_verbose = verbose;
+    this->_verbose = !quiet;
     this->_notifications = notifications;
     this->_postData = postData;
     this->_navg = navg;

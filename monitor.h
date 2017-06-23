@@ -8,7 +8,7 @@ class Monitor : public QObject
 {
     Q_OBJECT
 public:
-    explicit Monitor(int monitoringInterval, int navg, bool continuous, bool verbose, bool notifications, bool postData,
+    explicit Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, bool notifications, bool postData,
                      bool ultrasonicSensor, bool floatSensor, int notificationHour, QObject *parent = 0);
 
 signals:
