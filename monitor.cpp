@@ -114,11 +114,15 @@ void Monitor::checkStatus()
         out << QString("|-------------------------------------------------------------| \n");
         out << QString("|  Sump Status @ "+QDateTime::currentDateTime().toString()+"                     |\n");
         out << QString("|                                                             |\n");
-        out << QString("|      Water Level: "+wls+"                                    |\n");
-        if(fl)
-            out << QString("|     Float Status: Triggered                                 |\n");
-        else
-            out << QString("|     Float Status: Not Triggered                             |\n");
+        if(this->_useUltrasonic)
+            out << QString("|      Water Level: "+wls+"                                    |\n");
+        if(this->_useFloat)
+        {
+            if(fl)
+                out << QString("|     Float Status: Triggered                                 |\n");
+            else
+                out << QString("|     Float Status: Not Triggered                             |\n");
+        }
         out << QString("|-------------------------------------------------------------| \n\n");
         out.flush();
     }
@@ -137,18 +141,28 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel, int &pri
         title    = "Sump Level Critical!";
         message  = "CRITICAL! Sump Water Level is "+QString::number(waterLevel)+". Attention is required immediately. The high water float has been toggled.";
     }
-    else if(waterLevel>5)
+    else if(this->_useUltrasonic)
     {
-        priority = PRIORITY_HIGH;
-        title    = "Sump Level is Abnormal";
-        message  = "Sump pump should be checked immediately. Water level is "+QString::number(waterLevel)+" but the high water float has not been toggled yet.";
+        if(waterLevel>5)
+        {
+            priority = PRIORITY_HIGH;
+            title    = "Sump Level is Abnormal";
+            message  = "Sump pump should be checked immediately. Water level is "+QString::number(waterLevel)+" but the high water float has not been toggled yet.";
+        }
+        else
+        {
+            priority = PRIORITY_STANDARD;
+            title    = "Sump Level is Normal";
+            message  = "Sump level is normal. No need for action at this time. Water level is "+QString::number(waterLevel)+" and the float has not been toggled.";
+        }
     }
     else
     {
         priority = PRIORITY_STANDARD;
         title    = "Sump Level is Normal";
-        message  = "Sump level is normal. No need for action at this time. Water level is "+QString::number(waterLevel)+" and the float has not been toggled.";
+        message  = "Sump level is normal. No need for action at this time.";
     }
+
     return 0;
 }
 
