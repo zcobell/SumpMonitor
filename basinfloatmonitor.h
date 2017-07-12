@@ -17,7 +17,7 @@ signals:
 public slots:
 
 private:
-    int _floatPin = FLOAT_PIN;
+    int _floatPin;
 
 };
 

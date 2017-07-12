@@ -14,8 +14,7 @@ SOURCES += main.cpp \
     monitor.cpp \
     waterlevelmonitor.cpp \
     basinfloatmonitor.cpp \
-    mmapGpio.cpp \
-    postsqldata.cpp
+    postsqldata.cpp 
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -34,8 +33,9 @@ HEADERS += \
     monitor.h \
     waterlevelmonitor.h \
     basinfloatmonitor.h \
-    mmapGpio.h \
     postsqldata.h
+
+LIBS += -lwiringPi
 
 GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"

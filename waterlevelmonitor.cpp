@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <QElapsedTimer>
 #include "waterlevelmonitor.h"
-#include "mmapGpio.h"
+#include "wiringPi.h"
 
 WaterLevelMonitor::WaterLevelMonitor(int n, QObject *parent) : QObject(parent)
 {
@@ -48,36 +48,34 @@ double WaterLevelMonitor::_probeWaterLevel(int &ierr)
     distance       = 0.0;
 
     //...Map the input and output pins
-    mmapGpio *rpiGpio = new mmapGpio();
-    rpiGpio->setPinDir(this->_triggerPin,mmapGpio::OUTPUT);
-    rpiGpio->setPinDir(this->_echoPin,mmapGpio::INPUT);
+    wiringPiSetupSys();
+    pinMode(this->_triggerPin,OUTPUT);
+    pinMode(this->_echoPin,INPUT);
+
 
     //...Settle the sensor
-    rpiGpio->writePinLow(this->_triggerPin);
+    digitalWrite(this->_triggerPin,LOW);
     QThread::msleep(500);
 
     //...Send the sound wave
-    rpiGpio->writePinHigh(this->_triggerPin);
+    digitalWrite(this->_triggerPin,HIGH);
     nanosleep(&tim,&tim2); 
-    rpiGpio->writePinLow(this->_triggerPin);
+    digitalWrite(this->_triggerPin,LOW);
 
     //...Recieve the beginning of the sound wave
-    while(rpiGpio->readPin(this->_echoPin)==mmapGpio::LOW)
+    while(digitalRead(this->_echoPin)==LOW)
 
     //...Start the timer
     timer.start();
 
     //...Recieve the end of the sound wave
-    while(rpiGpio->readPin(this->_echoPin)==mmapGpio::HIGH)
+    while(digitalRead(this->_echoPin)==HIGH);
 
     //...Stop the timer
     pulse_duration = timer.nsecsElapsed()*1e-9;
 
     //...Calculate the distance to the object in ft
     distance       = pulse_duration * this->_speedOfSound / 2.0 * 3.28084;
-
-    //...Cleanup
-    delete rpiGpio;
 
     //...Return the distance to the object
     //   and determine if we think this 

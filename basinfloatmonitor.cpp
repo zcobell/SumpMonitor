@@ -1,10 +1,9 @@
 #include "basinfloatmonitor.h"
-#include "mmapGpio.h"
-
+#include "wiringPi.h"
 
 BasinFloatMonitor::BasinFloatMonitor(QObject *parent) : QObject(parent)
 {
-
+    this->_floatPin = FLOAT_PIN;
 }
 
 bool BasinFloatMonitor::getFloatStatus(int &ierr)
@@ -13,15 +12,14 @@ bool BasinFloatMonitor::getFloatStatus(int &ierr)
     int pinState;
 
     //...Map the read location
-    mmapGpio *rpiGpio = new mmapGpio();
-    rpiGpio->setPinDir(this->_floatPin,mmapGpio::INPUT);
+    wiringPiSetup();
+    pinMode(this->_floatPin,INPUT);
 
     //...Read the pin
-    pinState = rpiGpio->readPin(this->_floatPin);
-    delete rpiGpio;
+    pinState = digitalRead(this->_floatPin);
 
     //...Return the state
-    if(pinState==mmapGpio::LOW)
+    if(pinState==LOW)
         return false;
     else
         return true;

@@ -2,10 +2,10 @@
 #define PINS_H
 
 //...Ultrasonic sensor setup
-#define ULTRASONIC_TRIGGER 23
-#define ULTRASONIC_ECHO    24
+#define ULTRASONIC_TRIGGER 4
+#define ULTRASONIC_ECHO    5
 
 //...Float sensor setup
-#define FLOAT_PIN           4
+#define FLOAT_PIN          7
 
 #endif //PINS_H
