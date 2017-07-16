@@ -22,7 +22,7 @@ private:
     double _interpolateWaterLevel(int reading);
     double _analyzeMeasurements(QVector<double> measurements);
 
-    int  _nSamples = 50;
+    int  _nSamples = 100;
 
 };
 

@@ -31,7 +31,7 @@ double EtapeSensor::_readEtape(int &ierr)
     for(i=0;i<this->_nSamples;i++)
     {
         measurements[i] = this->_interpolateWaterLevel(analogRead(SPI_BASE+SPI_CHANNEL_ETAPE));
-        QThread::msleep(10);
+        QThread::msleep(50);
     }
 
     waterlevel = this->_analyzeMeasurements(measurements);

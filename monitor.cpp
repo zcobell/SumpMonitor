@@ -150,12 +150,14 @@ void Monitor::checkStatus()
 
 int Monitor::generateStatusMessage(bool floatStatus, double waterLevel, int &priority, QString &title, QString &message)
 {
+    QString wls;
+    wls.sprintf("%5.2f",waterLevel);
     //...Generate the status
     if(floatStatus)
     {
         priority = PRIORITY_EMERGENCY;
         title    = "Sump Level Critical!";
-        message  = "CRITICAL! Sump Water Level is "+QString::number(waterLevel)+". Attention is required immediately. The high water float has been toggled.";
+        message  = "CRITICAL! Sump Water Level is "+wls+" inches. Attention is required immediately. The high water float has been toggled.";
     }
     else if(this->_useUltrasonic || this->_useEtape)
     {
@@ -163,13 +165,13 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel, int &pri
         {
             priority = PRIORITY_HIGH;
             title    = "Sump Level is Abnormal";
-            message  = "Sump pump should be checked immediately. Water level is "+QString::number(waterLevel)+" but the high water float has not been toggled yet.";
+            message  = "Sump pump should be checked immediately. Water level is "+wls+" inches but the high water float has not been toggled yet.";
         }
         else
         {
             priority = PRIORITY_STANDARD;
             title    = "Sump Level is Normal";
-            message  = "Sump level is normal. No need for action at this time. Water level is "+QString::number(waterLevel)+" and the float has not been toggled.";
+            message  = "Sump level is normal. No need for action at this time. Water level is "+wls+" inches and the float has not been toggled.";
         }
     }
     else
