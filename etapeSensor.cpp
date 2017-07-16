@@ -2,6 +2,7 @@
 #include <QThread>
 #include <unistd.h>
 #include <QElapsedTimer>
+#include <algorithm>
 #include "etapeSensor.h"
 #include "wiringPi.h"
 #include "mcp3004.h"
@@ -12,7 +13,7 @@
 
 EtapeSensor::EtapeSensor(QObject *parent) : QObject(parent)
 {
-    this->_buildInterpolant();
+
 }
 
 
@@ -25,35 +26,68 @@ double EtapeSensor::getWaterLevel(int &ierr)
 double EtapeSensor::_readEtape(int &ierr)
 {
     int i;
-    double waterLevel;
+    double waterlevel;
+    QVector<double> measurements;
 
     //...Setup the SPI channels
     wiringPiSetup();
     mcp3004Setup(100,SPI_CHANNEL_ETAPE);
 
-    //...Since sensor isn't totally stables, 
-    //   average a number of readings
-    waterLevel = 0.0;
+    measurements.resize(this->_nSamples);
+
     for(i=0;i<this->_nSamples;i++)
     {
-        waterLevel = waterLevel + this->_interpolateWaterLevel(analogRead(BASE));
-        QThread::msleep(50);
+        measurements[i] = this->_interpolateWaterLevel(analogRead(BASE));
+        QThread::msleep(10);
     }
-    waterLevel = waterLevel / this->_nSamples;
 
-    return waterLevel;
+    waterlevel = this->_analyzeMeasurements(measurements);
+    ierr = 0;
+    return waterlevel;
 }
 
 
 double EtapeSensor::_interpolateWaterLevel(int reading)
 {
-    return double(reading);
+    //...Use header defined slope and intercept
+    //   to calculate water level as a function
+    //   of reading from etape
+    return ETAPE_SLOPE*(double)reading + ETAPE_INTERCEPT;
 }
 
 
-void EtapeSensor::_buildInterpolant()
+double EtapeSensor::_analyzeMeasurements(QVector<double> measurements)
 {
-    this->_interpolant[500] = 0.0;
-    this->_interpolant[1000] = 1.0;
-    return;
+    int q,n,i;
+    double q1,q3,dq,f,f1,f3,wl;
+
+    std::sort(measurements.begin(),measurements.end());
+    
+    q = round(measurements.size()/4);
+
+    q1 = measurements[q];
+    q3 = measurements[3*q];
+
+    dq = q3-q1;
+
+    f  = dq*1.5;
+
+    f1 = q1 - f;
+    f3 = q3 + f;
+
+    wl = 0.0;
+    n  = 0;
+
+    for(i=0;i<measurements.size();i++)
+    {
+        if(measurements[i]>f1 && measurements[i]<f3)
+        {
+            wl = wl + measurements[i];
+            n  = n + 1;
+        }
+    }
+
+    wl = wl / (double)n;
+
+    return wl;
 }

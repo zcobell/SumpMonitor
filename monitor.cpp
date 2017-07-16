@@ -7,7 +7,7 @@
 #include "etapeSensor.h"
 
 Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, bool notifications, bool postData,
-                 bool ultrasonicSensor, bool floatSensor, int notificationHour, QObject *parent) : QObject(parent)
+                 bool ultrasonicSensor, bool floatSensor, bool etapeSensor, int notificationHour, QObject *parent) : QObject(parent)
 {
     this->pushMessageSender = new Notifier(notificationHour, this);
     this->sqlDatabase = new PostSQLData(this);
@@ -19,7 +19,7 @@ Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, 
     this->_navg = navg;
     this->_useUltrasonic = ultrasonicSensor;
     this->_useFloat = floatSensor;
-    this->_useEtape = true;
+    this->_useEtape = etapeSensor;
 }
 
 
@@ -66,7 +66,7 @@ void Monitor::checkStatus()
 {
     int ierr;
     int priority;
-    double wl,ewl;
+    double wl;
     bool fl;
     QString message;
     QString title;
@@ -82,6 +82,14 @@ void Monitor::checkStatus()
             wl = 0.0;
         delete sonic;
     }
+    else if(this->_useEtape)
+    {
+        EtapeSensor *etape = new EtapeSensor(this);
+        wl = etape->getWaterLevel(ierr);
+        if(ierr!=0)
+            wl=0.0;
+        delete etape;
+    }
     else
         wl = 0.0;
 
@@ -96,22 +104,6 @@ void Monitor::checkStatus()
     }
     else
         fl = false;
-
-    //...Check the eTape sensor
-    if(this->_useEtape)
-    {
-        EtapeSensor *etape = new EtapeSensor(this);
-        ewl = etape->getWaterLevel(ierr);
-        if(ierr!=0)
-            ewl=0.0;
-        delete etape;
-    }
-    else
-        ewl = 0.0;
-
-
-    qDebug() << ewl;
-
 
     //...Post data to SQL database on web server
     if(this->_postData)
@@ -137,8 +129,8 @@ void Monitor::checkStatus()
         out << QString("|-------------------------------------------------------------| \n");
         out << QString("|  Sump Status @ "+QDateTime::currentDateTime().toString()+"                     |\n");
         out << QString("|                                                             |\n");
-        if(this->_useUltrasonic)
-            out << QString("|      Water Level: "+wls+"                                    |\n");
+        if(this->_useUltrasonic || this->_useEtape )
+            out << QString("|      Water Level: "+wls+" inches                             |\n");
         if(this->_useFloat)
         {
             if(fl)
@@ -164,7 +156,7 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel, int &pri
         title    = "Sump Level Critical!";
         message  = "CRITICAL! Sump Water Level is "+QString::number(waterLevel)+". Attention is required immediately. The high water float has been toggled.";
     }
-    else if(this->_useUltrasonic)
+    else if(this->_useUltrasonic || this->_useEtape)
     {
         if(waterLevel>5)
         {

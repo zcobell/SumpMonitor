@@ -2,8 +2,11 @@
 #define ETAPESENSOR_H
 
 #include <QObject>
-#include <QHash>
+#include <QVector>
 #include "pins.h"
+
+#define ETAPE_SLOPE        0.109359
+#define ETAPE_INTERCEPT  -53.785960
 
 class EtapeSensor : public QObject
 {
@@ -17,13 +20,9 @@ private:
 
     double _readEtape(int &ierr);
     double _interpolateWaterLevel(int reading);
+    double _analyzeMeasurements(QVector<double> measurements);
 
-    void _buildInterpolant();
-
-    int    _nSamples = 20;
-
-    QHash<int,double> _interpolant;
-
+    int  _nSamples = 50;
 
 };
 

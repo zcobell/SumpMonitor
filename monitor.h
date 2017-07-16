@@ -9,7 +9,7 @@ class Monitor : public QObject
     Q_OBJECT
 public:
     explicit Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, bool notifications, bool postData,
-                     bool ultrasonicSensor, bool floatSensor, int notificationHour, QObject *parent = 0);
+                     bool ultrasonicSensor, bool floatSensor, bool etapeSensor, int notificationHour, QObject *parent = 0);
 
 signals:
     void finished();
