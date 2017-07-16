@@ -1,15 +1,10 @@
-#include <QTime>
 #include <QThread>
 #include <unistd.h>
-#include <QElapsedTimer>
 #include <algorithm>
 #include "etapeSensor.h"
 #include "wiringPi.h"
 #include "mcp3004.h"
 #include "pins.h"
-#include <QDebug>
-
-#define BASE 100
 
 EtapeSensor::EtapeSensor(QObject *parent) : QObject(parent)
 {
@@ -31,13 +26,13 @@ double EtapeSensor::_readEtape(int &ierr)
 
     //...Setup the SPI channels
     wiringPiSetup();
-    mcp3004Setup(100,SPI_CHANNEL_ETAPE);
+    mcp3004Setup(SPI_BASE,SPI_CHANNEL_ETAPE);
 
     measurements.resize(this->_nSamples);
 
     for(i=0;i<this->_nSamples;i++)
     {
-        measurements[i] = this->_interpolateWaterLevel(analogRead(BASE));
+        measurements[i] = this->_interpolateWaterLevel(analogRead(SPI_BASE+SPI_CHANNEL_ETAPE));
         QThread::msleep(10);
     }
 

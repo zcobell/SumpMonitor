@@ -10,6 +10,7 @@
 
 //...ETape SPI Channel setup 
 //   SPI Channel in the MCP3008
+#define SPI_BASE           100
 #define SPI_CHANNEL_ETAPE  0
 
 #endif //PINS_H
