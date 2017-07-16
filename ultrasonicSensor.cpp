@@ -2,17 +2,17 @@
 #include <QThread>
 #include <unistd.h>
 #include <QElapsedTimer>
-#include "waterlevelmonitor.h"
+#include "ultrasonicSensor.h"
 #include "wiringPi.h"
 
-WaterLevelMonitor::WaterLevelMonitor(int n, QObject *parent) : QObject(parent)
+UltrasonicSensor::UltrasonicSensor(int n, QObject *parent) : QObject(parent)
 {
     this->_speedOfSound = this->speedOfSound(this->fahrenheit2Celcius(this->_temperature));
     this->_nProbes = n;
 }
 
 
-double WaterLevelMonitor::getWaterLevel(int &ierr)
+double UltrasonicSensor::getWaterLevel(int &ierr)
 {
     double total;
 
@@ -31,7 +31,7 @@ double WaterLevelMonitor::getWaterLevel(int &ierr)
 
 }
 
-double WaterLevelMonitor::_probeWaterLevel(int &ierr)
+double UltrasonicSensor::_probeWaterLevel(int &ierr)
 {
 
     struct timespec tim, tim2;
@@ -87,12 +87,12 @@ double WaterLevelMonitor::_probeWaterLevel(int &ierr)
 
 }
 
-double WaterLevelMonitor::speedOfSound(double temperature)
+double UltrasonicSensor::speedOfSound(double temperature)
 {
     return 331.0+(0.6*temperature);
 }
 
-double WaterLevelMonitor::fahrenheit2Celcius(double temperature)
+double UltrasonicSensor::fahrenheit2Celcius(double temperature)
 {
     return (temperature-32.0)*(5.0/9.0);
 }

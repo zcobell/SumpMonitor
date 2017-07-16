@@ -1,14 +1,14 @@
-#ifndef WATERLEVELMONITOR_H
-#define WATERLEVELMONITOR_H
+#ifndef ULTRASONICSENSOR_H
+#define ULTRASONICSENSOR_H
 
 #include <QObject>
 #include "pins.h"
 
-class WaterLevelMonitor : public QObject
+class UltrasonicSensor : public QObject
 {
     Q_OBJECT
 public:
-    explicit WaterLevelMonitor(int n, QObject *parent = 0);
+    explicit UltrasonicSensor(int n, QObject *parent = 0);
 
     //...Function that performs a series
     //   of measurements and averages the 
@@ -39,4 +39,4 @@ private:
 
 };
 
-#endif // WATERLEVELMONITOR_H
+#endif // ULTRASONICSENSOR_H

@@ -29,6 +29,7 @@ private:
     bool _postData;
     bool _useUltrasonic;
     bool _useFloat;
+    bool _useEtape;
     Notifier *pushMessageSender;
     PostSQLData *sqlDatabase;
     

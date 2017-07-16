@@ -8,4 +8,8 @@
 //...Float sensor setup
 #define FLOAT_PIN          7
 
+//...ETape SPI Channel setup 
+//   SPI Channel in the MCP3008
+#define SPI_CHANNEL_ETAPE  0
+
 #endif //PINS_H

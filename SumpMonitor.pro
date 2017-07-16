@@ -12,8 +12,9 @@ TEMPLATE = app
 SOURCES += main.cpp \
     notifier.cpp \
     monitor.cpp \
-    waterlevelmonitor.cpp \
-    basinfloatmonitor.cpp \
+    ultrasonicSensor.cpp \
+    floatSensor.cpp \
+    etapeSensor.cpp \
     postsqldata.cpp 
 
 # The following define makes your compiler emit warnings if you use
@@ -31,8 +32,9 @@ HEADERS += \
     tokens.h \
     notifier.h \
     monitor.h \
-    waterlevelmonitor.h \
-    basinfloatmonitor.h \
+    ultrasonicSensor.h \
+    floatSensor.h \
+    etapeSensor.h \
     postsqldata.h
 
 LIBS += -lwiringPi

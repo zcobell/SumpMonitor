@@ -1,12 +1,12 @@
-#include "basinfloatmonitor.h"
+#include "floatSensor.h"
 #include "wiringPi.h"
 
-BasinFloatMonitor::BasinFloatMonitor(QObject *parent) : QObject(parent)
+FloatSensor::FloatSensor(QObject *parent) : QObject(parent)
 {
     this->_floatPin = FLOAT_PIN;
 }
 
-bool BasinFloatMonitor::getFloatStatus(int &ierr)
+bool FloatSensor::getFloatStatus(int &ierr)
 {
     ierr = 0;
     int pinState;

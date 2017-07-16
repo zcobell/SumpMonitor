@@ -2,8 +2,9 @@
 #include <QTimer>
 #include <stdio.h>
 #include "monitor.h"
-#include "waterlevelmonitor.h"
-#include "basinfloatmonitor.h"
+#include "ultrasonicSensor.h"
+#include "floatSensor.h"
+#include "etapeSensor.h"
 
 Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, bool notifications, bool postData,
                  bool ultrasonicSensor, bool floatSensor, int notificationHour, QObject *parent) : QObject(parent)
@@ -18,6 +19,7 @@ Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, 
     this->_navg = navg;
     this->_useUltrasonic = ultrasonicSensor;
     this->_useFloat = floatSensor;
+    this->_useEtape = true;
 }
 
 
@@ -64,7 +66,7 @@ void Monitor::checkStatus()
 {
     int ierr;
     int priority;
-    double wl;
+    double wl,ewl;
     bool fl;
     QString message;
     QString title;
@@ -74,11 +76,11 @@ void Monitor::checkStatus()
     //...Check the water level in the sump
     if(this->_useUltrasonic)
     {
-        WaterLevelMonitor *waterLevel = new WaterLevelMonitor(this->_navg,this);
-        wl = waterLevel->getWaterLevel(ierr);
+        UltrasonicSensor *sonic = new UltrasonicSensor(this->_navg,this);
+        wl = sonic->getWaterLevel(ierr);
         if(ierr!=0)
             wl = 0.0;
-        delete waterLevel;
+        delete sonic;
     }
     else
         wl = 0.0;
@@ -86,14 +88,30 @@ void Monitor::checkStatus()
     //...Check the basin float status
     if(this->_useFloat)
     {
-        BasinFloatMonitor *basinMonitor = new BasinFloatMonitor(this);
-        fl = basinMonitor->getFloatStatus(ierr);
+        FloatSensor *floater = new FloatSensor(this);
+        fl = floater->getFloatStatus(ierr);
         if(ierr!=0)
             fl = false;
-        delete basinMonitor;
+        delete floater;
     }
     else
         fl = false;
+
+    //...Check the eTape sensor
+    if(this->_useEtape)
+    {
+        EtapeSensor *etape = new EtapeSensor(this);
+        ewl = etape->getWaterLevel(ierr);
+        if(ierr!=0)
+            ewl=0.0;
+        delete etape;
+    }
+    else
+        ewl = 0.0;
+
+
+    qDebug() << ewl;
+
 
     //...Post data to SQL database on web server
     if(this->_postData)
