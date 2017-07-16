@@ -9,10 +9,10 @@ int main(int argc, char *argv[])
 {
     
     bool isSingleSet,isContinuousSet,isQuietSet;
-    bool isNotifySet,isPostSet,useUltrasonic,useFloat,useEtape;
+    bool isNotifySet,isPostSet,isFloatSet,isEtapeSet,isUltrasonicSet;
 
     int defaultPollingInterval = 60;
-    int defaultAveragingValue  = 5;
+    int defaultSamplingValue   = 100;
 
     QCoreApplication a(argc, argv);
 
@@ -31,34 +31,31 @@ int main(int argc, char *argv[])
 
     QCommandLineOption quietOption(QStringList() << "q" << "quiet",
         "Do not write unnessary outout to the scree");
-    QCommandLineOption singleOption(QStringList() << "s" << "single",
+    QCommandLineOption singleOption(QStringList() << "single",
         "Run the monitoring rountine only a single time");
-    QCommandLineOption continuousOption(QStringList() << "c" << "continuous",
+    QCommandLineOption continuousOption(QStringList() << "continuous",
         "Run the monitoring routine continuously as defined by <interval>");
-    QCommandLineOption intervalOption(QStringList() << "i" << "interval",
+    QCommandLineOption intervalOption(QStringList() << "interval",
         "Interval in seconds to monitor status when running in continuous mode [default="+
         QString::number(defaultPollingInterval)+"]","seconds");
-    QCommandLineOption notifyOption(QStringList() << "n" << "notify",
+    QCommandLineOption notifyOption(QStringList() << "push",
         "Use the push notification system via PushOver");
-    QCommandLineOption postSqlOption(QStringList() << "p" << "post",
+    QCommandLineOption postSqlOption(QStringList() << "sql",
         "Post data to a SQL web server");
-    QCommandLineOption averagingOption(QStringList() << "a" << "average",
-        "Average a number of measurements of water level to reduce noise [default="+
-        QString::number(defaultAveragingValue)+"]","n");
-    QCommandLineOption ultrasonicOption(QStringList() << "u" << "ultrasonic",
-        "Use the ultrasonic sensor to track the water level [default=no]","yes/no");
-    QCommandLineOption etapeOption(QStringList() << "e" << "etape", 
-        "Use the eTape sensor to track the water level [default=yes]","yes/no");
-    QCommandLineOption floatOption(QStringList() << "f" << "float",
-        "Use the float sensor to determine when water has exceeded a threshold [default=yes]","yes/no");
-    QCommandLineOption notificationHourOption(QStringList() << "t" << "time",
+    QCommandLineOption samplingOption(QStringList() << "samples",
+        "Number of samples to use to reduce sensor noise [default="+
+        QString::number(defaultSamplingValue)+"]","n");
+    QCommandLineOption ultrasonicOption(QStringList() << "ultrasonic",
+        "Use the ultrasonic sensor to track the water level");
+    QCommandLineOption etapeOption(QStringList() << "etape", 
+        "Use the eTape sensor to track the water level");
+    QCommandLineOption floatOption(QStringList() << "float",
+        "Use the float sensor to determine when water has exceeded a threshold");
+    QCommandLineOption notificationHourOption(QStringList() << "time",
         "Hour of the day to send a daily status confirmation. Useful in determining if the system has gone offline [default=8]","1-24");
     
     intervalOption.setDefaultValue(QString::number(defaultPollingInterval));
-    averagingOption.setDefaultValue(QString::number(defaultAveragingValue));
-    ultrasonicOption.setDefaultValue("no");
-    floatOption.setDefaultValue("yes");
-    etapeOption.setDefaultValue("yes");
+    samplingOption.setDefaultValue(QString::number(defaultSamplingValue));
 
     notificationHourOption.setDefaultValue("8");
 
@@ -68,9 +65,9 @@ int main(int argc, char *argv[])
     parser.addOption(intervalOption);
     parser.addOption(notifyOption);
     parser.addOption(postSqlOption);
-    parser.addOption(averagingOption);
-    parser.addOption(ultrasonicOption);
+    parser.addOption(samplingOption);
     parser.addOption(floatOption);
+    parser.addOption(ultrasonicOption);
     parser.addOption(etapeOption);
     parser.addOption(notificationHourOption);
 
@@ -91,23 +88,18 @@ int main(int argc, char *argv[])
     isQuietSet      = parser.isSet(quietOption);
     isNotifySet     = parser.isSet(notifyOption);
     isPostSet       = parser.isSet(postSqlOption);
+    isFloatSet      = parser.isSet(floatOption);
+    isEtapeSet      = parser.isSet(etapeOption);
+    isUltrasonicSet = parser.isSet(ultrasonicOption);
 
-    int navg        = parser.value(averagingOption).toInt();
+    int nsamples    = parser.value(samplingOption).toInt();
 
-    if(parser.value(ultrasonicOption)=="yes")
-        useUltrasonic = true;
-    else
-        useUltrasonic = false;
-
-    if(parser.value(floatOption)=="yes")
-        useFloat = true;
-    else
-        useFloat = false;
-
-    if(parser.value(etapeOption)=="yes")
-        useEtape = true;
-    else
-        useEtape = false;
+    if(isEtapeSet && isUltrasonicSet)
+    {
+        out << "ERROR: You may only use the ultrasonic sensor or the eTape sensor.";
+        out.flush();
+        return 1;
+    }
 
     int hour = parser.value(notificationHourOption).toInt();
 
@@ -125,17 +117,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if(useUltrasonic && useEtape)
-    {
-        out << "ERROR: You may only use the ETape or the Ultrasonic sensor.\n";
-        out.flush();
-        return 1;
-    }
-
     if(isSingleSet)
     {
-        Monitor *sumpMonitor = new Monitor(0,navg,false,isQuietSet,isNotifySet,isPostSet,
-                                           useUltrasonic,useFloat,useEtape,hour,&a);
+        Monitor *sumpMonitor = new Monitor(0,nsamples,false,isQuietSet,isNotifySet,isPostSet,
+                                           isUltrasonicSet,isFloatSet,isEtapeSet,hour,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
         return a.exec();
@@ -144,8 +129,8 @@ int main(int argc, char *argv[])
     if(isContinuousSet)
     {
         int interval = parser.value(intervalOption).toInt();
-        Monitor *sumpMonitor = new Monitor(interval,navg,true,isQuietSet,isNotifySet,isPostSet,
-                                           useUltrasonic,useFloat,useEtape,hour,&a);
+        Monitor *sumpMonitor = new Monitor(interval,nsamples,true,isQuietSet,isNotifySet,isPostSet,
+                                           isUltrasonicSet,isFloatSet,isEtapeSet,hour,&a);
         QObject::connect(sumpMonitor,SIGNAL(finished()),&a,SLOT(quit()));
         QTimer::singleShot(0,sumpMonitor,SLOT(run()));
         return a.exec();

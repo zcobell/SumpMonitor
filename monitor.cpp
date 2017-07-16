@@ -6,7 +6,7 @@
 #include "floatSensor.h"
 #include "etapeSensor.h"
 
-Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, bool notifications, bool postData,
+Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous, bool quiet, bool notifications, bool postData,
                  bool ultrasonicSensor, bool floatSensor, bool etapeSensor, int notificationHour, QObject *parent) : QObject(parent)
 {
     this->pushMessageSender = new Notifier(notificationHour, this);
@@ -16,7 +16,7 @@ Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, 
     this->_verbose = !quiet;
     this->_notifications = notifications;
     this->_postData = postData;
-    this->_navg = navg;
+    this->_nsamples = nsamples;
     this->_useUltrasonic = ultrasonicSensor;
     this->_useFloat = floatSensor;
     this->_useEtape = etapeSensor;
@@ -24,9 +24,9 @@ Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, 
     if(this->_useFloat)
         this->_floatSensor = new FloatSensor(this);
     if(this->_useUltrasonic)
-        this->_ultrasonicSensor = new UltrasonicSensor(this->_navg,this);
+        this->_ultrasonicSensor = new UltrasonicSensor(this->_nsamples,this);
     if(this->_useEtape)
-        this->_etapeSensor = new EtapeSensor(this);
+        this->_etapeSensor = new EtapeSensor(this->_nsamples,this);
 }
 
 

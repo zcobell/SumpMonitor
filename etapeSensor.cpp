@@ -7,8 +7,11 @@
 #include "pins.h"
 #include <QDebug>
 
-EtapeSensor::EtapeSensor(QObject *parent) : QObject(parent)
+EtapeSensor::EtapeSensor(int nSamples, QObject *parent) : QObject(parent)
 {
+    
+    this->_nSamples = nSamples;
+
     //...Setup the SPI channels
     wiringPiSetup();
     mcp3008Setup(SPI_BASE,SPI_CHANNEL_ETAPE);
@@ -54,18 +57,28 @@ double EtapeSensor::_analyzeMeasurements(QVector<double> measurements)
 {
     double wl;
     int i,n,q1,q2;
-
-    std::sort(measurements.begin(),measurements.end());
-    q1 = measurements.size()/2;
-    q2 = measurements.size()/10;
-
+    
     wl = 0.0;
-    n = 0;
-    for(i=q1-q2;i<q1+q2;i++)
+    n  = 0;
+
+    if(measurements.size()>20)
     {
-        wl = wl + measurements[i];
-        n  = n + 1;
+        std::sort(measurements.begin(),measurements.end());
+        q1 = measurements.size()/2;
+        q2 = measurements.size()/10;
+    
+        for(i=q1-q2;i<q1+q2;i++)
+        {
+            wl = wl + measurements[i];
+            n  = n + 1;
+        }
+        wl = wl / n;
     }
-    wl = wl / n;
+    else
+    {
+        for(i=0;i<measurements.size();i++)
+            wl = wl + measurements[i]; 
+        wl = wl / measurements.size();
+    }
     return wl;
 }

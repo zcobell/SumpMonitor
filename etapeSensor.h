@@ -12,7 +12,7 @@ class EtapeSensor : public QObject
 {
     Q_OBJECT
 public:
-    explicit EtapeSensor(QObject *parent = 0);
+    explicit EtapeSensor(int nSamples, QObject *parent = 0);
 
     double getWaterLevel(int &ierr);
 
