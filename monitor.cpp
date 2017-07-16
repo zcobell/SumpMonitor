@@ -20,6 +20,13 @@ Monitor::Monitor(int monitoringInterval, int navg, bool continuous, bool quiet, 
     this->_useUltrasonic = ultrasonicSensor;
     this->_useFloat = floatSensor;
     this->_useEtape = etapeSensor;
+
+    if(this->_useFloat)
+        this->_floatSensor = new FloatSensor(this);
+    if(this->_useUltrasonic)
+        this->_ultrasonicSensor = new UltrasonicSensor(this->_navg,this);
+    if(this->_useEtape)
+        this->_etapeSensor = new EtapeSensor(this);
 }
 
 
@@ -76,19 +83,15 @@ void Monitor::checkStatus()
     //...Check the water level in the sump
     if(this->_useUltrasonic)
     {
-        UltrasonicSensor *sonic = new UltrasonicSensor(this->_navg,this);
-        wl = sonic->getWaterLevel(ierr);
+        wl = this->_ultrasonicSensor->getWaterLevel(ierr);
         if(ierr!=0)
             wl = 0.0;
-        delete sonic;
     }
     else if(this->_useEtape)
     {
-        EtapeSensor *etape = new EtapeSensor(this);
-        wl = etape->getWaterLevel(ierr);
+        wl = this->_etapeSensor->getWaterLevel(ierr);
         if(ierr!=0)
             wl=0.0;
-        delete etape;
     }
     else
         wl = 0.0;
@@ -96,11 +99,9 @@ void Monitor::checkStatus()
     //...Check the basin float status
     if(this->_useFloat)
     {
-        FloatSensor *floater = new FloatSensor(this);
-        fl = floater->getFloatStatus(ierr);
+        fl = this->_floatSensor->getFloatStatus(ierr);
         if(ierr!=0)
             fl = false;
-        delete floater;
     }
     else
         fl = false;
@@ -158,7 +159,7 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel, int &pri
     }
     else if(this->_useUltrasonic || this->_useEtape)
     {
-        if(waterLevel>5)
+        if(waterLevel>15.0)
         {
             priority = PRIORITY_HIGH;
             title    = "Sump Level is Abnormal";

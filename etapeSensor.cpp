@@ -8,7 +8,9 @@
 
 EtapeSensor::EtapeSensor(QObject *parent) : QObject(parent)
 {
-
+    //...Setup the SPI channels
+    wiringPiSetup();
+    mcp3004Setup(SPI_BASE,SPI_CHANNEL_ETAPE);
 }
 
 
@@ -23,10 +25,6 @@ double EtapeSensor::_readEtape(int &ierr)
     int i;
     double waterlevel;
     QVector<double> measurements;
-
-    //...Setup the SPI channels
-    wiringPiSetup();
-    mcp3004Setup(SPI_BASE,SPI_CHANNEL_ETAPE);
 
     measurements.resize(this->_nSamples);
 

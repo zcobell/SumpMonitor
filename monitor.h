@@ -3,6 +3,9 @@
 
 #include "notifier.h"
 #include "postsqldata.h"
+#include "ultrasonicSensor.h"
+#include "floatSensor.h"
+#include "etapeSensor.h"
 
 class Monitor : public QObject
 {
@@ -32,6 +35,9 @@ private:
     bool _useEtape;
     Notifier *pushMessageSender;
     PostSQLData *sqlDatabase;
+    FloatSensor *_floatSensor;
+    EtapeSensor *_etapeSensor;
+    UltrasonicSensor *_ultrasonicSensor;
     
     int generateStatusMessage(bool floatStatus, double waterLevel, int &priority, QString &title, QString &message);
 
