@@ -49,6 +49,7 @@ void PostSQLData::postData(double waterlevel, bool floatstatus)
         ierr = this->closeDatabase();
         ierr = this->initDatabase();
         if(ierr!=0)
+            exit(EXIT_FAILURE);
         return;
     }
 
@@ -65,6 +66,11 @@ void PostSQLData::postData(double waterlevel, bool floatstatus)
                         "(`id`, `time`, `waterlevel`, `floatstatus`) VALUES" +sqlData+";");
 
     this->database.exec(sqlString);
+    if(this->database.lastError().type()!=QSqlError::NoError)
+    {
+        qCritical() << "ERROR: Could not post data to server.";
+        exit(EXIT_FAILURE);
+    }
 
     return;
 
