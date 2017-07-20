@@ -3,9 +3,8 @@
 #include <algorithm>
 #include "etapeSensor.h"
 #include "wiringPi.h"
-#include "mcp3008.h"
+#include "mcp3004.h"
 #include "pins.h"
-#include <QDebug>
 
 EtapeSensor::EtapeSensor(int nSamples, QObject *parent) : QObject(parent)
 {
@@ -14,7 +13,7 @@ EtapeSensor::EtapeSensor(int nSamples, QObject *parent) : QObject(parent)
 
     //...Setup the SPI channels
     wiringPiSetup();
-    mcp3008Setup(SPI_BASE,SPI_CHANNEL_ETAPE);
+    mcp3004Setup(SPI_BASE,SPI_CHANNEL_ETAPE);
 }
 
 
