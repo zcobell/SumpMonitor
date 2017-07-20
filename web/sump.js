@@ -1,9 +1,8 @@
 
+
 function getSumpData()
 {
-    $.getJSON('http://YOURHOST.com/sump.php',function(data){
-        parseJSONData(data);
-    });
+    parseJSONData(sumpdata);
 }
 
 
@@ -32,7 +31,7 @@ function parseJSONData(data)
         minute = Number(tempTime2[1]);
         second = Number(tempTime2[2]);
 
-        json_date[i] = new Date(year,month,day,hour,minute,second);
+        json_date[i] = Date.UTC(year,month,day,hour,minute,second);
 
         json_waterlevel[i] = Number(data[i].waterlevel);
         json_float[i]      = Number(data[i].floatstatus);
@@ -54,6 +53,8 @@ function plot(m_date,m_f,m_wl)
     var sumpPitDiameter = 18.5; //inches
     var oneHour = 60*60*1000;
     var maxwl,minwl;
+    var lastCycle;
+    var tempDate;
 
     var plotToolTip = {
         formatter: function() {
@@ -89,9 +90,10 @@ function plot(m_date,m_f,m_wl)
             {
                 nRuns = nRuns + 1;
                 gallons = gallons + ( (waterData[i-1][1]-waterData[i][1]) * Math.PI * (sumpPitDiameter/2.0) * (sumpPitDiameter/2.0) ) / 231.0;
+                tempDate = new Date(m_date[i]);
                 if(nRuns>1)
-                    dt = dt + (m_date[i].getTime()-lastCycle.getTime())/oneHour;
-                lastCycle = m_date[i];
+                    dt = dt + (tempDate.getTime()-lastCycle.getTime())/oneHour;
+                lastCycle = tempDate;
             }
         }
 
@@ -110,7 +112,7 @@ function plot(m_date,m_f,m_wl)
                                                         "<td align=\"right\"><b>Average Time Between Cycles:</b></td><td>"+Math.round(dt*100)/100+" hours</td>"+
                                                     "</tr>"+
                                                     "<tr>"+
-                                                        "<td align=\"right\"><b>24hr Pumping Volume:</b></td><td>"+Math.round(gallons*100)/100+" gallons</td>"+
+                                                        "<td align=\"right\"><b>Pumping Volume For Date Range Shown:</b></td><td>"+Math.round(gallons*100)/100+" gallons</td>"+
                                                     "</tr>"+
                                                     "<tr>"+
                                                         "<td align=\"right\"><b>Maximum water level: </b></td><td>"+Math.round(maxwl*100)/100+" inches</td>"+
@@ -136,7 +138,6 @@ function plot(m_date,m_f,m_wl)
              }
     };
 
-    Highcharts.setOptions({global: {useUTC: false}});
 
     $('#waterlevel').highcharts({
         title: {
@@ -146,12 +147,6 @@ function plot(m_date,m_f,m_wl)
         chart : { zoomType: "xy" },
         xAxis: xData,
         yAxis: { labels: {format: '{value:.2f}'}, title: { text: 'Water Level (in)' }, gridLineWidth: 1, alternateGridColor: '#EEEEEE' },
-        //legend: {
-        //    layout: 'vertical',
-        //    align: 'right',
-        //    verticalAlign: 'middle',
-        //    borderWidth: 0
-        //},
         series: [{ name: "Water Level", data: waterData, color: '#0000FF' }],
         plotOptions: { line: { marker: { enabled: false }}}
     });
