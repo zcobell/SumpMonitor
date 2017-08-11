@@ -33,6 +33,7 @@ private:
     bool _useUltrasonic;
     bool _useFloat;
     bool _useEtape;
+    bool _restartNotifications = false;
     Notifier *pushMessageSender;
     PostSQLData *sqlDatabase;
     FloatSensor *_floatSensor;

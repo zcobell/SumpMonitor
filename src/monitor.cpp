@@ -41,8 +41,8 @@ void Monitor::run()
         out.flush();
     }
 
-    //...Alter the user that the monitor was restarted
-    if(this->_notifications)
+    //...Alert the user that the monitor was restarted
+    if(this->_notifications && this->_restartNotifications)
         this->pushMessageSender->sendRestartMessage();
 
     //...Begin the code to fire every _monitoringInterval
