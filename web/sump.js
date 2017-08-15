@@ -1,18 +1,23 @@
 
+function pad(num, size) {
+    var s = "000000000" + num;
+    return s.substr(s.length-size);
+}
 
-function getSumpData()
+function getSumpData(isQuery)
 {
-    parseJSONData(sumpdata);
+    parseJSONData(sumpdata,isQuery);
 }
 
 
 
-function parseJSONData(data)
+function parseJSONData(data,isQuery)
 {
     var i;
     var json_date          = new Array();
     var json_float         = new Array();
     var json_waterlevel    = new Array();
+    var json_datevar       = new Array();
     var temp;
 
     for(i=0;i<data.length;i++)
@@ -32,17 +37,18 @@ function parseJSONData(data)
         second = Number(tempTime2[2]);
 
         json_date[i] = Date.UTC(year,month,day,hour,minute,second);
+        json_datevar[i] = new Date(year,month,day,hour,minute,second);
 
         json_waterlevel[i] = Number(data[i].waterlevel);
         json_float[i]      = Number(data[i].floatstatus);
 
     }
 
-    plot(json_date,json_float,json_waterlevel);
+    plot(json_date,json_datevar,json_float,json_waterlevel,isQuery);
 
 }
 
-function plot(m_date,m_f,m_wl)
+function plot(m_date,m_datevar,m_f,m_wl,isQuery)
 {
     var i;
     var floatData = new Array();
@@ -55,6 +61,8 @@ function plot(m_date,m_f,m_wl)
     var maxwl,minwl;
     var lastCycle;
     var tempDate;
+    var timestring;
+    var lastData;
 
     var plotToolTip = {
         formatter: function() {
@@ -74,6 +82,7 @@ function plot(m_date,m_f,m_wl)
         
         floatData[i][0] = m_date[i];
         waterData[i][0] = m_date[i];
+        lastData = m_datevar[i];
         
         floatData[i][1] = m_f[i];
         waterData[i][1] = m_wl[i];
@@ -104,23 +113,72 @@ function plot(m_date,m_f,m_wl)
     else
         dt = 0;
 
-    document.getElementById('stats').innerHTML = "<table> "+
-                                                    "<tr>" + 
-                                                        "<td align=\"right\"><b>Number of Cycles:</b></td><td>"+nRuns+"</td>"+
-                                                    "</tr>"+
-                                                    "<tr>"+
-                                                        "<td align=\"right\"><b>Average Time Between Cycles:</b></td><td>"+Math.round(dt*100)/100+" hours</td>"+
-                                                    "</tr>"+
-                                                    "<tr>"+
-                                                        "<td align=\"right\"><b>Pumping Volume For Date Range Shown:</b></td><td>"+Math.round(gallons*100)/100+" gallons</td>"+
-                                                    "</tr>"+
-                                                    "<tr>"+
-                                                        "<td align=\"right\"><b>Maximum water level: </b></td><td>"+Math.round(maxwl*100)/100+" inches</td>"+
-                                                    "</tr>"+
-                                                    "<tr>"+
-                                                        "<td align=\"right\"><b>Minimum water level: </b></td><td>"+Math.round(minwl*100)/100+" inches</td>"+
-                                                    "</tr>"+
-                                                 "</table>";
+    if(dt>1.0)
+        timestring="hours";
+    else
+    {
+        timestring="minutes";
+        dt = dt * 60;
+    }
+
+
+    var lastDataYear    = lastData.getYear()+1900;
+    var lastDataMonth   = pad(lastData.getMonth()+1,2);
+    var lastDataDay     = pad(lastData.getDate(),2);
+    var lastDataHour    = pad(lastData.getHours(),2);
+    var lastDataMinute  = pad(lastData.getMinutes(),2);
+    var lastDataSecond  = pad(lastData.getSeconds(),2);
+    var ampm;
+    if(lastData.getHours()>12)
+    {
+        lastDataHour = pad(lastData.getHours()-12,2);
+        ampm = "PM";
+    }
+    else
+    {
+        lastDataHour = pad(lastData.getHours(),2);
+        ampm = "AM";
+    }
+
+    var isDown;
+    now = new Date();
+    if((now.getTime()-lastData.getTime())/1000 > 10*60)
+        isDown = 1;
+    else
+        isDown = 0;
+
+    var tableHTML ="<table> "+
+                   "<tr>" + 
+                       "<td align=\"right\"><b>Number of Cycles:</b></td><td>"+nRuns+"</td>"+
+                   "</tr>"+
+                   "<tr>"+
+                       "<td align=\"right\"><b>Average Time Between Cycles:</b></td><td>"+Math.round(dt*100)/100+" "+timestring+"</td>"+
+                   "</tr>"+
+                   "<tr>"+
+                       "<td align=\"right\"><b>Pumping Volume For Date Range Shown:</b></td><td>"+Math.round(gallons*100)/100+" gallons</td>"+
+                   "</tr>"+
+                   "<tr>"+
+                       "<td align=\"right\"><b>Maximum water level: </b></td><td>"+Math.round(maxwl*100)/100+" inches</td>"+
+                   "</tr>"+
+                   "<tr>"+
+                       "<td align=\"right\"><b>Minimum water level: </b></td><td>"+Math.round(minwl*100)/100+" inches</td>"+
+                   "</tr>";
+    if(isQuery==0)
+    {
+       tableHTML = tableHTML +
+                   "<tr>"+
+                       "<td align=\"right\"><b>Last data received: </b></td><td>"+lastDataMonth+"/"+lastDataDay+"/"+lastDataYear+" "+
+                                  lastDataHour+":"+lastDataMinute+":"+lastDataSecond+" "+ampm+"</td>"+
+                   "</tr>";
+        if(isDown==0)
+            tableHTML = tableHTML + "<tr><td align=\"right\"><b>Monitor Status: </b></td><td> <b><font color=\"green\">ACTIVE</font></b></td></tr>";
+        else
+            tableHTML = tableHTML + "<tr><td align=\"right\"><b>Monitor Status: </b></td><td> <b><font color=\"red\">DOWN</font></b></td></tr>";
+    }
+
+    tableHTML = tableHTML + "</table>";
+
+    document.getElementById('stats').innerHTML = tableHTML;                                                
 
 
     //...Show last 24 hrs
