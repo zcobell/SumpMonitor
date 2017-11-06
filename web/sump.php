@@ -74,7 +74,11 @@ echo "\n</script>\n";
 // Close connections
 mysqli_close($con);
 
-echo "<body onload=\"getSumpData();\">";
+if(isset($_GET["startdate"]))
+    echo "<body onload=\"getSumpData(1);\">";
+else
+    echo "<body onload=\"getSumpData(0);\">";
+
 echo "<div id=\"waterlevel\" style=\"min-width: 310px; height: 400px; margin: 0 auto\"></div>";
 echo "<div id=\"stats\"></div>";
 echo "<div id=\"form\">";
