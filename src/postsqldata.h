@@ -15,11 +15,11 @@ signals:
 
 public slots:
     void postData(double waterlevel, bool floatstatus);
+    int initDatabase();
+    int closeDatabase();
 
 private:
 
-    int initDatabase();
-    int closeDatabase();
     int checkDatabaseConnection();
     QSqlDatabase database;
 

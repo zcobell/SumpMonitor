@@ -108,7 +108,11 @@ void Monitor::checkStatus()
 
     //...Post data to SQL database on web server
     if(this->_postData)
+    {
+        this->sqlDatabase->initDatabase();
         this->sqlDatabase->postData(wl,fl);
+        this->sqlDatabase->closeDatabase();
+    }
 
     //...Generate the status messages
     if(this->_notifications)
@@ -128,7 +132,7 @@ void Monitor::checkStatus()
         QString wls;
         wls.sprintf("%6.2f",wl);
         out << QString("|-------------------------------------------------------------| \n");
-        out << QString("|  Sump Status @ "+QDateTime::currentDateTime().toString()+"                     |\n");
+        out << QString("|  Sump Status @ "+QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")+"                          |\n");
         out << QString("|                                                             |\n");
         if(this->_useUltrasonic || this->_useEtape )
             out << QString("|      Water Level: "+wls+" inches                             |\n");

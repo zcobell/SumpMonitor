@@ -1,21 +1,20 @@
 #include <QtSql>
 #include "postsqldata.h"
 #include "tokens.h"
+#include <QDebug>
 
 PostSQLData::PostSQLData(QObject *parent) : QObject(parent)
 {
-    this->initDatabase();
 }
+
 
 
 PostSQLData::~PostSQLData()
 {
-    this->closeDatabase();
 }
 
 int PostSQLData::initDatabase()
 {
-
     this->database = QSqlDatabase::addDatabase("QMYSQL");
     this->database.setHostName(SERVER);
     this->database.setDatabaseName(DBNAME);
@@ -32,7 +31,10 @@ int PostSQLData::initDatabase()
 
 int PostSQLData::closeDatabase()
 {
+    QString connection = this->database.connectionName();
     this->database.close();
+    this->database = QSqlDatabase();
+    this->database.removeDatabase(connection);
     return 0;
 }
 
