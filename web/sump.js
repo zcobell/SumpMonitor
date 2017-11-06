@@ -9,7 +9,15 @@ function getSumpData(isQuery)
     parseJSONData(sumpdata,isQuery);
 }
 
+Date.prototype.stdTimezoneOffset = function() {
+    var jan = new Date(this.getFullYear(), 0, 1);
+    var jul = new Date(this.getFullYear(), 6, 1);
+    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+}
 
+Date.prototype.dst = function() {
+    return this.getTimezoneOffset() < this.stdTimezoneOffset();
+}
 
 function parseJSONData(data,isQuery)
 {
@@ -121,6 +129,14 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
         dt = dt * 60;
     }
 
+    var timezoneOffset = new Date().getTimezoneOffset();    
+    var today = new Date();
+    if ( today.dst() )
+        var mountainTime = 360.0;
+    else
+        var mountainTime = 420.0;
+
+    lastData.setMinutes(lastData.getMinutes()+(mountainTime-timezoneOffset));
 
     var lastDataYear    = lastData.getYear()+1900;
     var lastDataMonth   = pad(lastData.getMonth()+1,2);
@@ -141,8 +157,10 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
     }
 
     var isDown;
+    var timezoneDiff = -(timezoneOffset - mountainTime)*60;
     now = new Date();
-    if((now.getTime()-lastData.getTime())/1000 > 10*60)
+
+    if((now.getTime()-lastData.getTime())/1000 > (10*60))
         isDown = 1;
     else
         isDown = 0;
