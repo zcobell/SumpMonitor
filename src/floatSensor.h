@@ -1,24 +1,22 @@
 #ifndef FLOATSENSOR_H
 #define FLOATSENSOR_H
 
-#include <QObject>
 #include "pins.h"
+#include <QObject>
 
-class FloatSensor : public QObject
-{
-    Q_OBJECT
+class FloatSensor : public QObject {
+  Q_OBJECT
 public:
-    explicit FloatSensor(QObject *parent = 0);
+  explicit FloatSensor(QObject *parent = 0);
 
-    bool getFloatStatus(int &ierr);
+  bool getFloatStatus(int &ierr);
 
 signals:
 
 public slots:
 
 private:
-    int _floatPin;
-
+  int _floatPin;
 };
 
 #endif // FLOATSENSOR_H

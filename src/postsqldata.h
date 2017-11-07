@@ -4,25 +4,22 @@
 #include <QObject>
 #include <QSqlDatabase>
 
-class PostSQLData : public QObject
-{
-    Q_OBJECT
+class PostSQLData : public QObject {
+  Q_OBJECT
 public:
-    explicit PostSQLData(QObject *parent = 0);
-    ~PostSQLData();
+  explicit PostSQLData(QObject *parent = 0);
+  ~PostSQLData();
 
 signals:
 
 public slots:
-    void postData(double waterlevel, bool floatstatus);
-    int initDatabase();
-    int closeDatabase();
+  void postData(double waterlevel, bool floatstatus);
+  int initDatabase();
+  int closeDatabase();
 
 private:
-
-    int checkDatabaseConnection();
-    QSqlDatabase database;
-
+  int checkDatabaseConnection();
+  QSqlDatabase database;
 };
 
 #endif // POSTSQLDATA_H

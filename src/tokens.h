@@ -3,7 +3,7 @@
 
 //..Pushover Credentials
 #define USER_TOKEN "***REMOVED***"
-#define APP_TOKEN  "***REMOVED***"
+#define APP_TOKEN "***REMOVED***"
 
 //...Database login information
 #define SERVER "***REMOVED***"
