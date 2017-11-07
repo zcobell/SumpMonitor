@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QTimer>
 #include <stdio.h>
+#include "sumpmonitor.h"
 
 Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
                  bool quiet, bool notifications, bool postData,
@@ -149,27 +150,27 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel,
   wls.sprintf("%5.2f", waterLevel);
   //...Generate the status
   if (floatStatus) {
-    priority = PRIORITY_EMERGENCY;
+    priority = Priority::Emergency;
     title = "Sump Level Critical!";
     message = "CRITICAL! Sump Water Level is " + wls +
               " inches. Attention is required immediately. The high water "
               "float has been toggled.";
   } else if (this->_useUltrasonic || this->_useEtape) {
     if (waterLevel > 15.0) {
-      priority = PRIORITY_HIGH;
+      priority = Priority::High;
       title = "Sump Level is Abnormal";
       message = "Sump pump should be checked immediately. Water level is " +
                 wls +
                 " inches but the high water float has not been toggled yet.";
     } else {
-      priority = PRIORITY_STANDARD;
+      priority = Priority::Standard;
       title = "Sump Level is Normal";
       message = "Sump level is normal. No need for action at this time. Water "
                 "level is " +
                 wls + " inches and the float has not been toggled.";
     }
   } else {
-    priority = PRIORITY_STANDARD;
+    priority = Priority::Standard;
     title = "Sump Level is Normal";
     message = "Sump level is normal. No need for action at this time.";
   }

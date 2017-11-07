@@ -5,15 +5,6 @@
 #include <QNetworkAccessManager>
 #include <QObject>
 
-#define PRIORITY_LOWEST -2
-#define PRIORITY_LOW -1
-#define PRIORITY_STANDARD 0
-#define PRIORITY_HIGH 1
-#define PRIORITY_EMERGENCY 2
-
-#define EMERGENCY_RETRY 600
-#define EMERGENCY_EXPIRE 86400
-
 class Notifier : public QObject {
   Q_OBJECT
 public:

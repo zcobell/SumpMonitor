@@ -1,9 +1,10 @@
-c #include<QUrl>
+#include<QUrl>
 #include "notifier.h"
 #include "tokens.h"
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QUrlQuery>
+#include "sumpmonitor.h"
 
 Notifier::Notifier(int notificationHour, QObject *parent) : QObject(parent) {
   this->_networkManager = new QNetworkAccessManager(this);
@@ -94,8 +95,8 @@ int Notifier::_sendMessage(int priority, QString title, QString message) {
   postData.addQueryItem("message", message);
 
   if (priority == 2) {
-    postData.addQueryItem("retry", QString::number(EMERGENCY_RETRY));
-    postData.addQueryItem("expire", QString::number(EMERGENCY_EXPIRE));
+    postData.addQueryItem("retry", QString::number(Emergency::Retry));
+    postData.addQueryItem("expire", QString::number(Emergency::Expire));
   }
 
   QNetworkRequest request(url);
