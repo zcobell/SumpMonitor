@@ -15,7 +15,8 @@ SOURCES += src/main.cpp \
     src/ultrasonicSensor.cpp \
     src/floatSensor.cpp \
     src/etapeSensor.cpp \
-    src/postsqldata.cpp 
+    src/postsqldata.cpp \
+    src/sumpdata.cpp
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -26,7 +27,8 @@ HEADERS += \
     src/ultrasonicSensor.h \
     src/floatSensor.h \
     src/etapeSensor.h \
-    src/postsqldata.h 
+    src/postsqldata.h \
+    src/sumpdata.h
 
 LIBS += -lwiringPi
 

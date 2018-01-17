@@ -29,9 +29,9 @@ int PostSQLData::closeDatabase() {
   return 0;
 }
 
-void PostSQLData::postData(double waterlevel, bool floatstatus) {
+bool PostSQLData::_postData(QDateTime time, double waterlevel, bool floatstatus) {
   QString sqlString, sqlData;
-  QString wl, fs;
+  QString wl, fs, ts;
   int ierr;
 
   ierr = this->checkDatabaseConnection();
@@ -39,8 +39,7 @@ void PostSQLData::postData(double waterlevel, bool floatstatus) {
     ierr = this->closeDatabase();
     ierr = this->initDatabase();
     if (ierr != 0)
-      exit(EXIT_FAILURE);
-    return;
+      return false;
   }
 
   wl.sprintf("%0.4f", waterlevel);
@@ -50,7 +49,9 @@ void PostSQLData::postData(double waterlevel, bool floatstatus) {
   else
     fs = "FALSE";
 
-  sqlData = "(NULL, NOW(), '" + wl + "', " + fs + ")";
+  ts = time.toString("yyyy-MM-dd hh:mm:ss");
+
+  sqlData = "(NULL, '"+ts+"', '" + wl + "', " + fs + ")";
 
   sqlString = QString("INSERT INTO `***REMOVED***`.`sumpData` "
                       "(`id`, `time`, `waterlevel`, `floatstatus`) VALUES" +
@@ -58,11 +59,34 @@ void PostSQLData::postData(double waterlevel, bool floatstatus) {
 
   this->database.exec(sqlString);
   if (this->database.lastError().type() != QSqlError::NoError) {
-    qCritical() << "ERROR: Could not post data to server.";
-    exit(EXIT_FAILURE);
+    //qCritical() << "ERROR: Could not post data to server.";
+    return false;
   }
 
-  return;
+  return true;
+}
+
+void PostSQLData::postData(double waterlevel, bool floatstatus) {
+    this->_postData(QDateTime::currentDateTime(),waterlevel,floatstatus);
+    return;
+}
+
+void PostSQLData::postData(QVector<SumpData*> &data){
+    QVector<bool> dataPosted;
+
+    dataPosted.resize(data.size());
+    std::fill(dataPosted.begin(),dataPosted.end(),false);
+
+    for(int i = 0;i<data.size();i++)
+        dataPosted[i] = this->_postData(data.at(i)->time(),data.at(i)->waterLevel(),data.at(i)->floatStatus());
+
+    for(int i = dataPosted.size()-1;i>=0;i--)
+        if(dataPosted[i]) {
+            delete data.at(i);
+            data.removeAt(i);
+        }
+
+    return;
 }
 
 int PostSQLData::checkDatabaseConnection() {
