@@ -1,11 +1,11 @@
 #include "monitor.h"
 #include "etapeSensor.h"
 #include "floatSensor.h"
+#include "sumpmonitor.h"
 #include "ultrasonicSensor.h"
 #include <QObject>
 #include <QTimer>
 #include <stdio.h>
-#include "sumpmonitor.h"
 
 Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
                  bool quiet, bool notifications, bool postData,
@@ -97,7 +97,8 @@ void Monitor::checkStatus() {
   //...Post data to SQL database on web server
   if (this->_postData) {
     this->sqlDatabase->initDatabase();
-    this->_monitorData.push_back(new SumpData(QDateTime::currentDateTime(),wl,fl));
+    this->_monitorData.push_back(
+        new SumpData(QDateTime::currentDateTime(), wl, fl));
     this->sqlDatabase->postData(this->_monitorData);
     this->sqlDatabase->closeDatabase();
   }

@@ -1,33 +1,32 @@
 #ifndef SUMPDATA_H
 #define SUMPDATA_H
 
-#include <QObject>
 #include <QDateTime>
+#include <QObject>
 
 class SumpData : public QObject {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit SumpData(QObject *parent = nullptr);
+  explicit SumpData(QObject *parent = nullptr);
 
-    explicit SumpData(QDateTime time, double waterlevel, bool floatstatus, QObject *parent = nullptr);
-    
-    ~SumpData();
+  explicit SumpData(QDateTime time, double waterlevel, bool floatstatus,
+                    QObject *parent = nullptr);
 
-    double waterLevel() const;
-    void setWaterLevel(double level);
+  ~SumpData();
 
-    bool floatStatus() const;
-    void setFloatStatus(bool status);
+  double waterLevel() const;
+  void setWaterLevel(double level);
 
-    QDateTime time() const;
-    void setTime(QDateTime time);
+  bool floatStatus() const;
+  void setFloatStatus(bool status);
+
+  QDateTime time() const;
+  void setTime(QDateTime time);
 
 private:
-
-    double m_waterLevel;
-    bool   m_floatStatus;
-    QDateTime m_time;
-
+  double m_waterLevel;
+  bool m_floatStatus;
+  QDateTime m_time;
 };
 
 #endif // SUMPDATA_H

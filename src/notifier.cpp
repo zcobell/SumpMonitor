@@ -1,10 +1,10 @@
-#include<QUrl>
 #include "notifier.h"
+#include "sumpmonitor.h"
 #include "tokens.h"
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QUrl>
 #include <QUrlQuery>
-#include "sumpmonitor.h"
 
 Notifier::Notifier(int notificationHour, QObject *parent) : QObject(parent) {
   this->_networkManager = new QNetworkAccessManager(this);

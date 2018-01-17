@@ -1,41 +1,33 @@
 #include "sumpdata.h"
 
 SumpData::SumpData(QObject *parent) : QObject(parent) {
-    this->m_waterLevel = 0.0;
-    this->m_floatStatus = false;
-    this->m_time = QDateTime();
-};
-
-SumpData::SumpData(QDateTime time, double waterlevel, bool floatstatus, QObject *parent) : QObject(parent) {
-    this->m_waterLevel = waterlevel;
-    this->m_floatStatus = floatstatus;
-    this->m_time = time;
-    return;
+  this->m_waterLevel = 0.0;
+  this->m_floatStatus = false;
+  this->m_time = QDateTime();
 }
 
-SumpData::~SumpData(){};
-
-void SumpData::setWaterLevel(double level){
-    this->m_waterLevel = level;
-    return;
+SumpData::SumpData(QDateTime time, double waterlevel, bool floatstatus,
+                   QObject *parent)
+    : QObject(parent) {
+  this->m_waterLevel = waterlevel;
+  this->m_floatStatus = floatstatus;
+  this->m_time = time;
+  return;
 }
 
-double SumpData::waterLevel() const {
-    return this->m_waterLevel;
-} 
+SumpData::~SumpData() {}
 
-void SumpData::setFloatStatus(bool status){
-    this->m_floatStatus = status;
+void SumpData::setWaterLevel(double level) {
+  this->m_waterLevel = level;
+  return;
 }
 
-bool SumpData::floatStatus() const {
-    return this->m_floatStatus;
-}
+double SumpData::waterLevel() const { return this->m_waterLevel; }
 
-QDateTime SumpData::time() const {
-    return this->m_time;
-}
+void SumpData::setFloatStatus(bool status) { this->m_floatStatus = status; }
 
-void SumpData::setTime(QDateTime time){
-    this->m_time = time;
-}
+bool SumpData::floatStatus() const { return this->m_floatStatus; }
+
+QDateTime SumpData::time() const { return this->m_time; }
+
+void SumpData::setTime(QDateTime time) { this->m_time = time; }

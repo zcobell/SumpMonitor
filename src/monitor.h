@@ -5,8 +5,8 @@
 #include "floatSensor.h"
 #include "notifier.h"
 #include "postsqldata.h"
-#include "ultrasonicSensor.h"
 #include "sumpdata.h"
+#include "ultrasonicSensor.h"
 #include <QVector>
 
 class Monitor : public QObject {
@@ -42,7 +42,7 @@ private:
   FloatSensor *_floatSensor;
   EtapeSensor *_etapeSensor;
   UltrasonicSensor *_ultrasonicSensor;
-  QVector<SumpData*> _monitorData;
+  QVector<SumpData *> _monitorData;
 
   int generateStatusMessage(bool floatStatus, double waterLevel, int &priority,
                             QString &title, QString &message);

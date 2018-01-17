@@ -1,11 +1,11 @@
 #ifndef POSTSQLDATA_H
 #define POSTSQLDATA_H
 
+#include "sumpdata.h"
+#include <QDateTime>
 #include <QObject>
 #include <QSqlDatabase>
 #include <QVector>
-#include <QDateTime>
-#include "sumpdata.h"
 
 class PostSQLData : public QObject {
   Q_OBJECT
@@ -17,7 +17,7 @@ signals:
 
 public slots:
   void postData(double waterlevel, bool floatstatus);
-  void postData(QVector<SumpData*> &data);
+  void postData(QVector<SumpData *> &data);
   int initDatabase();
   int closeDatabase();
 
