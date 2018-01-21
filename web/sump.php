@@ -1,5 +1,9 @@
 <?php
 
+header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+header("Pragma: no-cache"); // HTTP 1.0.
+header("Expires: 0"); // Proxies.
+
 echo "<html>";
 echo "<head>";
 echo "<title>Sump Monitor</title>";
@@ -40,13 +44,13 @@ if(isset($_GET["startdate"]))
         }
         $startdatestring=$startdate->format('Y-m-d H:i:s');
         $enddatestring=$enddate->format('Y-m-d H:i:s');
-        $sql = "SELECT SQL_NO_CACHE * FROM sumpData WHERE time >= '".$startdatestring."' and time <= '".$enddatestring."' ORDER BY time";
+        $sql = "SELECT * FROM sumpData WHERE time >= '".$startdatestring."' and time <= '".$enddatestring."' ORDER BY time";
     }
     else
-        $sql = "SELECT SQL_NO_CACHE * FROM sumpData WHERE time >= DATE_SUB(NOW(),INTERVAL 24 HOUR) ORDER BY time"; 
+        $sql = "SELECT * FROM sumpData WHERE time >= DATE_SUB(NOW(),INTERVAL 24 HOUR) ORDER BY time"; 
 }
 else
-    $sql = "SELECT SQL_NO_CACHE * FROM sumpData WHERE time >= DATE_SUB(NOW(),INTERVAL 24 HOUR) ORDER BY time";
+    $sql = "SELECT * FROM sumpData WHERE time >= DATE_SUB(NOW(),INTERVAL 24 HOUR) ORDER BY time";
 
 // Check if there are results
 if ($result = mysqli_query($con, $sql))
