@@ -57,14 +57,15 @@ double UltrasonicSensor::_probeWaterLevel(int &ierr) {
   digitalWrite(this->_triggerPin, LOW);
 
   //...Recieve the beginning of the sound wave
-  while (digitalRead(this->_echoPin) == LOW)
+  while (digitalRead(this->_echoPin) == LOW) {
+  };
 
-    //...Start the timer
-    timer.start();
+  //...Start the timer
+  timer.start();
 
   //...Recieve the end of the sound wave
-  while (digitalRead(this->_echoPin) == HIGH)
-    ;
+  while (digitalRead(this->_echoPin) == HIGH) {
+  };
 
   //...Stop the timer
   pulse_duration = timer.nsecsElapsed() * 1e-9;

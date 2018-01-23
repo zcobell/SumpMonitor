@@ -59,7 +59,8 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
                                           QTime(this->_notificationHour, 0, 0));
       this->_sendMessage(priority, title, message);
     } else {
-      qDebug() << "Notification supressed until " << this->_nextNotification;
+      qDebug() << "INFO: " << QDateTime::currentDateTime() 
+               << "Notification supressed until " << this->_nextNotification;
     }
   } else if (priority == 1) {
     if (QDateTime::currentDateTime() > this->_nextHighNotification) {
@@ -67,7 +68,8 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
       this->_nextHighNotification = QDateTime::currentDateTime().addSecs(21600);
       this->_sendMessage(priority, title, message);
     } else {
-      qDebug() << "High notification supressed until "
+      qDebug() << "INFO: " << QDateTime::currentDateTime() 
+               << "High notification supressed until "
                << this->_nextHighNotification;
     }
   } else if (priority == 2) {
@@ -77,7 +79,8 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
           QDateTime::currentDateTime().addSecs(3600);
       this->_sendMessage(priority, title, message);
     } else {
-      qDebug() << "Critical notification supressed until "
+      qDebug() << "INFO: " << QDateTime::currentDateTime() 
+               << "Critical notification supressed until "
                << this->_nextCriticalNotification;
     }
   }
@@ -108,6 +111,7 @@ int Notifier::_sendMessage(int priority, QString title, QString message) {
 }
 
 void Notifier::onPostAnswer(QNetworkReply *reply) {
+  Q_UNUSED(reply);
   emit finished();
   return;
 }

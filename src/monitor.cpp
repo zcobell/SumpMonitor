@@ -1,7 +1,9 @@
 #include "monitor.h"
 #include "etapeSensor.h"
 #include "floatSensor.h"
+#include "network.h"
 #include "sumpmonitor.h"
+#include "tokens.h"
 #include "ultrasonicSensor.h"
 #include <QObject>
 #include <QTimer>
@@ -96,11 +98,20 @@ void Monitor::checkStatus() {
 
   //...Post data to SQL database on web server
   if (this->_postData) {
-    this->sqlDatabase->initDatabase();
+
+    //...Generate the data for posting
     this->_monitorData.push_back(
         new SumpData(QDateTime::currentDateTime(), wl, fl));
-    this->sqlDatabase->postData(this->_monitorData);
-    this->sqlDatabase->closeDatabase();
+
+    //...Check if data can be posted
+    if (Network::isUp("http://"+QString(SERVER))) {
+      this->sqlDatabase->initDatabase();
+      this->sqlDatabase->postData(this->_monitorData);
+      this->sqlDatabase->closeDatabase();
+    } else {
+      qDebug() << "ERROR: Server down at " << QDateTime::currentDateTime();
+      qDebug() << "       dataPostQueueSize: " << this->_monitorData.size();
+    }
   }
 
   //...Generate the status messages

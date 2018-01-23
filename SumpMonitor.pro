@@ -16,7 +16,8 @@ SOURCES += src/main.cpp \
     src/floatSensor.cpp \
     src/etapeSensor.cpp \
     src/postsqldata.cpp \
-    src/sumpdata.cpp
+    src/sumpdata.cpp \
+    src/network.cpp
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -28,7 +29,9 @@ HEADERS += \
     src/floatSensor.h \
     src/etapeSensor.h \
     src/postsqldata.h \
-    src/sumpdata.h
+    src/sumpdata.h \
+    src/pins.h \
+    src/network.h
 
 LIBS += -lwiringPi
 
