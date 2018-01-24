@@ -123,12 +123,21 @@ void Monitor::checkStatus() {
 
     //...Check if data can be posted
     if (Network::isUp("http://"+QString(SERVER))) {
+      int sizeBefore = this->_monitorData.size();
       this->sqlDatabase->initDatabase();
       this->sqlDatabase->postData(this->_monitorData);
       this->sqlDatabase->closeDatabase();
+      int sizeAfter = this->_monitorData.size();
+
+      if(sizeBefore > 1 && sizeAfter == 0){
+          out << "INFO: Server returned to service at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") << "\n";
+          out << "      " << sizeBefore << " datasets were successfully posted.\n"; 
+          out.flush();
+      }
+
     } else {
-      out << "ERROR: Server down at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss");
-      out << "       dataPostQueueSize: " << this->_monitorData.size();
+      out << "ERROR: Server down at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") << "\n";
+      out << "       dataPostQueueSize: " << this->_monitorData.size() << "\n";
       out.flush();
     }
   }
