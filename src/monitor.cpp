@@ -109,8 +109,9 @@ void Monitor::checkStatus() {
       this->sqlDatabase->postData(this->_monitorData);
       this->sqlDatabase->closeDatabase();
     } else {
-      qDebug() << "ERROR: Server down at " << QDateTime::currentDateTime();
-      qDebug() << "       dataPostQueueSize: " << this->_monitorData.size();
+      out << "ERROR: Server down at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss");
+      out << "       dataPostQueueSize: " << this->_monitorData.size();
+      out.flush();
     }
   }
 
