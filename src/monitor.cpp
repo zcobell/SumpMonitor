@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QTimer>
 #include <stdio.h>
+#include "waterlevel.h"
 
 Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
                  bool quiet, bool notifications, bool postData,
@@ -144,13 +145,15 @@ void Monitor::checkStatus() {
 
   //...Generate the status messages
   if (this->_notifications) {
-    this->generateStatusMessage(fl, wl, priority, title, message);
+    if(Network::isUp()){
+        this->generateStatusMessage(fl, wl, priority, title, message);
 
-    //...Send the message
-    ierr = this->pushMessageSender->sendMessage(priority, title, message);
+        //...Send the message
+        ierr = this->pushMessageSender->sendMessage(priority, title, message);
 
-    if (ierr != 0)
-      endMonitor();
+        if (ierr != 0)
+          endMonitor();
+    }
   }
 
   //...Log message to screen
@@ -189,33 +192,74 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel,
                                    QString &message) {
   QString wls;
   wls.sprintf("%5.2f", waterLevel);
-  //...Generate the status
-  if (floatStatus) {
-    priority = Priority::Emergency;
-    title = "Sump Level Critical!";
-    message = "CRITICAL! Sump Water Level is " + wls +
-              " inches. Attention is required immediately. The high water "
-              "float has been toggled.";
-  } else if (this->_useUltrasonic || this->_useEtape) {
-    if (waterLevel > 15.0) {
+  
+  //...Use float as first and most critical
+  if( this->_useFloat ){
+      if (floatStatus) {
+        priority = Priority::Emergency;
+        title = "Sump Level Critical!";
+        if (this->_useUltrasonic || this->_useEtape) {
+            message = "CRITICAL! Sump Water Level is " + wls +
+                      " inches. Attention is required immediately. The high water "
+                      "float has been toggled.";
+        } else {
+            message = "CRITICAL! The high water float has been toggled. "
+                      "Attention required immediately.";
+        }
+        return 0;
+      }
+  } else if ( !this->_useUltrasonic && !this->_useEtape ) {
+      priority = Priority::Standard;
+      title = "Sump Level is Normal";
+      message = message + "The high water float has not been toggled yet.";
+      return 0;
+  }
+
+  //...Continue to water level sensors
+  if(this->_useEtape || this->_useUltrasonic){
+
+    double waterLevelHigh,waterLevelCritical;
+
+    if(this->_useEtape){
+        waterLevelCritical = WaterLevels::eTapeEmergencyLevel;
+        waterLevelHigh = WaterLevels::eTapeHighLevel;
+    } else {
+        waterLevelCritical = WaterLevels::ultrasonicEmergencyLevel;
+        waterLevelHigh = WaterLevels::ultrasonicHighLevel;
+    }
+
+    if ( waterLevel >= waterLevelCritical ) {
+      priority = Priority::Emergency;
+      title = "Sump Level is Critical!";
+      message = "Sump pump should be checked immediately. Water level is " +
+                wls + " inches.";
+      if(this->_useFloat)
+          message = message + "The high water float has not been toggled yet.";
+      return 0;
+    } else if (waterLevel >= waterLevelHigh ) {
       priority = Priority::High;
       title = "Sump Level is Abnormal";
       message = "Sump pump should be checked immediately. Water level is " +
-                wls +
-                " inches but the high water float has not been toggled yet.";
+                wls + " inches.";
+      if(this->_useFloat)
+          message = message + "The high water float has not been toggled yet.";
+      return 0;
     } else {
       priority = Priority::Standard;
       title = "Sump Level is Normal";
       message = "Sump level is normal. No need for action at this time. Water "
-                "level is " +
-                wls + " inches and the float has not been toggled.";
+                "level is " + wls + " inches.";
+      if(this->_useFloat)
+          message = message + "The high water float has not been toggled.";
+      return 0;
     }
-  } else {
-    priority = Priority::Standard;
-    title = "Sump Level is Normal";
-    message = "Sump level is normal. No need for action at this time.";
-  }
 
+  }
+  
+  priority = Priority::Standard;
+  title = "Sump Level is Unknown";
+  message = "No sensors are active.";
+  
   return 0;
 }
 
