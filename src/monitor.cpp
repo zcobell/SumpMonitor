@@ -25,8 +25,8 @@
 #include "ultrasonicSensor.h"
 #include <QObject>
 #include <QTimer>
+#include "sensorlevel.h"
 #include <stdio.h>
-#include "waterlevel.h"
 
 Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
                  bool quiet, bool notifications, bool postData,
@@ -221,11 +221,11 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel,
     double waterLevelHigh,waterLevelCritical;
 
     if(this->_useEtape){
-        waterLevelCritical = WaterLevels::eTapeEmergencyLevel;
-        waterLevelHigh = WaterLevels::eTapeHighLevel;
+        waterLevelCritical = SensorLevel::eTapeEmergencyLevel;
+        waterLevelHigh = SensorLevel::eTapeHighLevel;
     } else {
-        waterLevelCritical = WaterLevels::ultrasonicEmergencyLevel;
-        waterLevelHigh = WaterLevels::ultrasonicHighLevel;
+        waterLevelCritical = SensorLevel::ultrasonicEmergencyLevel;
+        waterLevelHigh = SensorLevel::ultrasonicHighLevel;
     }
 
     if ( waterLevel >= waterLevelCritical ) {

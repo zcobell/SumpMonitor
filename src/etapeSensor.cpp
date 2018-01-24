@@ -23,6 +23,7 @@
 #include <QThread>
 #include <algorithm>
 #include <unistd.h>
+#include "sensorlevel.h"
 
 EtapeSensor::EtapeSensor(int nSamples, QObject *parent) : QObject(parent) {
 
@@ -54,10 +55,11 @@ double EtapeSensor::_readEtape(int &ierr) {
 }
 
 double EtapeSensor::_interpolateWaterLevel(int reading) {
-  //...Use header defined slope and intercept
+  //...Use defined slope and intercept
   //   to calculate water level as a function
   //   of reading from etape
-  return ETAPE_SLOPE * (double)reading + ETAPE_INTERCEPT;
+  return SensorLevel::eTapeRegressionSlope * (double)reading + 
+            SensorLevel::eTapeRegressionYIntercept;
 }
 
 double EtapeSensor::_analyzeMeasurements(QVector<double> measurements) {
