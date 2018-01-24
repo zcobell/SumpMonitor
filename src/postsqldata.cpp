@@ -54,13 +54,12 @@ bool PostSQLData::_postData(QDateTime time, double waterlevel,
 
   sqlData = "(NULL, '" + ts + "', '" + wl + "', " + fs + ")";
 
-  sqlString = QString("INSERT INTO `***REMOVED***`.`sumpData` "
+  sqlString = QString("INSERT INTO `"+QString(DBNAME)+"`.`"+QString(TABLENAME)+"` "
                       "(`id`, `time`, `waterlevel`, `floatstatus`) VALUES" +
                       sqlData + ";");
 
   this->database.exec(sqlString);
   if (this->database.lastError().type() != QSqlError::NoError) {
-    // qCritical() << "ERROR: Could not post data to server.";
     return false;
   }
 

@@ -15,7 +15,7 @@ echo "</head>\n";
 echo "<script language=\"Javascript\">\n";
 
 // Create connection
-$con=mysqli_connect("localhost","***REMOVED***","***REMOVED***","***REMOVED***");
+$con=mysqli_connect("localhost","SQL_USERNAME","SQL_PASSWORD","SQL_DATABSE");
  
 // Check connection
 if (mysqli_connect_errno())

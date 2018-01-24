@@ -33,9 +33,9 @@ HEADERS += \
     src/pins.h \
     src/network.h
 
-LIBS += -lwiringPi
+LIBS += -L../thirdparty/wiringPi/wiringPi -lwiringPi
 
-INCLUDEPATH += src
+INCLUDEPATH += src ../thirdparty/wiringPi/wiringPi
 
 GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"

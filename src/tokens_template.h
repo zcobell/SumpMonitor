@@ -2,13 +2,14 @@
 #define TOKENS_H
 
 //..Pushover Credentials
-#define USER_TOKEN ""
-#define APP_TOKEN  ""
+#define USER_TOKEN "PUSHOVER_USERTOKEN"
+#define APP_TOKEN "PUSHOVER_APPTOKEN"
 
 //...Database login information
-#define SERVER ""
-#define DBNAME ""
-#define USERNAME ""
-#define PASSWORD ""
+#define SERVER "SQL_SERVER"
+#define DBNAME "SQL_DATABASE"
+#define USERNAME "SQL_DBUSERNAME"
+#define PASSWORD "SQL_PASSWORD"
+#define TABLENAME "SQL_TABLE"
 
 #endif // TOKENS_H
