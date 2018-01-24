@@ -1,6 +1,8 @@
 # SumpMonitor
 
 ## Repository Status
+[![Build Status](https://travis-ci.org/zcobell/SumpMonitor.svg?branch=master)](https://travis-ci.org/zcobell/SumpMonitor)
+[![Coverity](https://scan.coverity.com/projects/9088/badge.svg)](https://scan.coverity.com/projects/zcobell-sumpmonitor)
 
 ## Disclaimer
 I'm certain portions of this code can be written more elegantly and more safely. I'm happy to accept pull requests from anyone who'd like to contribute.
