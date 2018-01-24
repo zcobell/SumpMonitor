@@ -1,0 +1,30 @@
+sudo: required
+dist: trusty
+language: cpp
+compiler: gcc
+env:
+  global:
+    secure: UyyefQNQQtjkmpO2qxyq3L6HdMVW5t6/QFKJXhcJBoKiaVpQo05cmCnAr44graVJ+4gvQ479Nx0QYMeou/defrwAivQPM5/er8GAFnybC+BVFl2ez7hO6+L9hPb5P6o2M8IRfUqZZozhXQDfxnfPDDsVLy4OfN7SEUwQjrRVQH73BhJC0jBoLmObPF8Zg5C3Y5QICMsKLX4DdbGqvItL60rc+vv02P4sI8EI5xXknmymidhrwgogwUg5ywNMLeuTOFfRDeHBDJo8/+iG1Au6phOoozKQvgxe+TCVKPvEC07YCGnU8ZbTVYDzppYs4fAu09K8OTcFNjUbtf8WBsjpSb8IGo9OjxDdStrR4YL/Ludny3hn9brWQ4rVxmkHVYwFNhf2w5RSfd06snaQRIX84YBdKEGWieNqA2BB9RuToeTZjZVZ5PhqhwR6du9aHmgCGLQVaTuGYoBKFPxNpGJApMui6nT2CHuSArJFDrmJB+YYC+DhZJO2XQONioROLbCxzMsvSaXdBxefn1I92knShcvYuUL++iQMKtX8LE1rm5jE0zEu5ZH+PKZx36frYdohwRFBNf5McHu+TJX8W2nIxJIkPqxS/uyL8iGUPpymEsMlC2I2dwUUy2sgKylrMHCKoS+Vf7It4P10tUQheyS/46e5wP+/SVgHtYCpzikmXkI=
+addons:
+  coverity_scan:
+    project:
+      name: zcobell/SumpMonitor
+      description: Live sump pump monitoring with Raspberry Pi
+    notification_email: zachary.cobell@arcadis.com
+    build_command_prepend: cp src/tokens_template.h src/tokens.h ; cmake -DCMAKE_PREFIX_PATH=/opt/qt59/lib/cmake . 
+    build_command: make
+    branch_pattern: master
+before_install:
+- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
+  CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+- sudo add-apt-repository --yes ppa:beineri/opt-qt592-trusty
+- sudo apt-get update  -qq
+- sudo apt-get install -qq libsqlite3-dev libnetcdf-dev
+- sudo apt-cache search qt59
+- sudo apt-get install -qq qt59base 
+- export PATH=/opt/qt59/bin:$PATH
+script:
+- uname -a
+- cp src/tokens_template.h src/tokens.h
+- cmake -DCMAKE_PREFIX_PATH=/opt/qt59/lib/cmake .
+- make

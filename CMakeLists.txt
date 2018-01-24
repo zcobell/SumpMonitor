@@ -104,7 +104,8 @@ ADD_EXECUTABLE( sumpmonitor ${CMAKE_SOURCE_DIR}/src/main.cpp
                             ${CMAKE_SOURCE_DIR}/src/sumpdata.cpp
                             ${CMAKE_SOURCE_DIR}/src/network.cpp ) 
 
+ADD_DEPENDENCIES(sumpmonitor wiringPi)
 TARGET_LINK_LIBRARIES(sumpmonitor wiringPi Qt5::Core Qt5::Network Qt5::Sql )
-TARGET_INCLUDE_DIRECTORIES(sumpmonitor PRIVATE ${CMAKE_SOURCE_DIR}/src)
+TARGET_INCLUDE_DIRECTORIES(sumpmonitor PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/thirdparty/wiringPi/wiringPi)
 TARGET_COMPILE_DEFINITIONS(sumpmonitor PRIVATE GIT_VERSION="${GIT_VERSION}")
 
