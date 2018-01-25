@@ -46,6 +46,7 @@ Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
   this->_useEtape = etapeSensor;
   this->_ultrasonicSensor = nullptr;
   this->_etapeSensor = nullptr;
+  this->_floatSensor = nullptr;
 
   if (this->_useFloat)
     this->_floatSensor = new FloatSensor(this);
