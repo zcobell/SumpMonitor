@@ -13,7 +13,7 @@ addons:
     notification_email: zachary.cobell@arcadis.com
     build_command_prepend: cp src/tokens_template.h src/tokens.h ; cmake -DCMAKE_PREFIX_PATH=/opt/qt59/lib/cmake . 
     build_command: make
-    branch_pattern: coverity-scan
+    branch_pattern: master
 before_install:
 - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
   CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
