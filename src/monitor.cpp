@@ -210,8 +210,8 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel,
       }
   } else if ( !this->_useUltrasonic && !this->_useEtape ) {
       priority = Priority::Standard;
-      title = "Sump Level is Normal";
-      message = message + "The high water float has not been toggled yet.";
+      title = "Sump Level is Normal.";
+      message = message + " The high water float has not been toggled yet.";
       return 0;
   }
 
@@ -234,7 +234,7 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel,
       message = "Sump pump should be checked immediately. Water level is " +
                 wls + " inches.";
       if(this->_useFloat)
-          message = message + "The high water float has not been toggled yet.";
+          message = message + " The high water float has not been toggled yet.";
       return 0;
     } else if (waterLevel >= waterLevelHigh ) {
       priority = Priority::High;
@@ -242,7 +242,7 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel,
       message = "Sump pump should be checked immediately. Water level is " +
                 wls + " inches.";
       if(this->_useFloat)
-          message = message + "The high water float has not been toggled yet.";
+          message = message + " The high water float has not been toggled yet.";
       return 0;
     } else {
       priority = Priority::Standard;
@@ -250,7 +250,7 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel,
       message = "Sump level is normal. No need for action at this time. Water "
                 "level is " + wls + " inches.";
       if(this->_useFloat)
-          message = message + "The high water float has not been toggled.";
+          message = message + " The high water float has not been toggled.";
       return 0;
     }
 
