@@ -17,6 +17,7 @@
 //
 //------------------------------GPLv3------------------------------------//
 #include "notifier.h"
+#include <stdio.h>
 #include "sumpmonitor.h"
 #include "tokens.h"
 #include <QNetworkReply>
@@ -70,6 +71,7 @@ int Notifier::sendRestartMessage() {
 }
 
 int Notifier::sendMessage(int priority, QString title, QString message) {
+  QTextStream out(stdout, QIODevice::WriteOnly);
   if (priority < 1) {
     if (QDateTime::currentDateTime() > this->_nextNotification) {
       this->_lastNotification = this->_nextNotification;
@@ -77,8 +79,8 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
                                           QTime(this->_notificationHour, 0, 0));
       this->_sendMessage(priority, title, message);
     } else {
-      qDebug() << "INFO: " << QDateTime::currentDateTime() 
-               << "Notification supressed until " << this->_nextNotification;
+      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
+               << ". Notification suppressed until " << this->_nextNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
     }
   } else if (priority == 1) {
     if (QDateTime::currentDateTime() > this->_nextHighNotification) {
@@ -86,9 +88,9 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
       this->_nextHighNotification = QDateTime::currentDateTime().addSecs(21600);
       this->_sendMessage(priority, title, message);
     } else {
-      qDebug() << "INFO: " << QDateTime::currentDateTime() 
-               << "High notification supressed until "
-               << this->_nextHighNotification;
+      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+               << ". High notification suppressed until "
+               << this->_nextHighNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
     }
   } else if (priority == 2) {
     if (QDateTime::currentDateTime() > this->_nextCriticalNotification) {
@@ -97,9 +99,9 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
           QDateTime::currentDateTime().addSecs(3600);
       this->_sendMessage(priority, title, message);
     } else {
-      qDebug() << "INFO: " << QDateTime::currentDateTime() 
-               << "Critical notification supressed until "
-               << this->_nextCriticalNotification;
+      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+               << ". Critical notification suppressed until "
+               << this->_nextCriticalNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
     }
   }
   return 0;

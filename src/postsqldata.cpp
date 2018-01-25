@@ -18,7 +18,6 @@
 //------------------------------GPLv3------------------------------------//
 #include "postsqldata.h"
 #include "tokens.h"
-#include <QDebug>
 #include <QtSql>
 
 PostSQLData::PostSQLData(QObject *parent) : QObject(parent) {}

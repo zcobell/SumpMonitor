@@ -140,21 +140,23 @@ void Monitor::checkStatus() {
 
     } else {
       out << "ERROR: Server down at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") << "\n";
-      out << "       dataPostQueueSize: " << this->_monitorData.size() << "\n";
+      out << "       Number of datasets in queue: " << this->_monitorData.size() << "\n";
       out.flush();
     }
   }
 
   //...Generate the status messages
   if (this->_notifications) {
-    if(Network::isUp()){
-        this->generateStatusMessage(fl, wl, priority, title, message);
-
-        //...Send the message
+    
+    this->generateStatusMessage(fl, wl, priority, title, message);
+    
+    //...Send the message if possible
+    if(Network::isUp("http://pushover.net")){
         ierr = this->pushMessageSender->sendMessage(priority, title, message);
-
         if (ierr != 0)
           endMonitor();
+    } else {
+        out << "ERROR: PushOver service not available. Message not sent was: \n    " << message << "\n";
     }
   }
 
