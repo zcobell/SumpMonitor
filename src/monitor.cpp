@@ -31,7 +31,8 @@
 Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
                  bool quiet, bool notifications, bool postData,
                  bool ultrasonicSensor, bool floatSensor, bool etapeSensor,
-                 int notificationHour, QObject *parent)
+                 int notificationHour, bool netcdfOutput, QString netcdfFilename, 
+                 QObject *parent)
     : QObject(parent) {
   this->pushMessageSender = new Notifier(notificationHour, this);
   this->sqlDatabase = new PostSQLData(this);
@@ -47,6 +48,8 @@ Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
   this->_ultrasonicSensor = nullptr;
   this->_etapeSensor = nullptr;
   this->_floatSensor = nullptr;
+  this->_netcdfOutput = netcdfOutput;
+  this->_netcdfFilename = netcdfFilename;
 
   if (this->_useFloat)
     this->_floatSensor = new FloatSensor(this);
@@ -54,6 +57,12 @@ Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
     this->_ultrasonicSensor = new UltrasonicSensor(this->_nsamples, this);
   if (this->_useEtape)
     this->_etapeSensor = new EtapeSensor(this->_nsamples, this);
+  if(this->_netcdfOutput) {
+    this->_ncdata = new NetcdfData(this->_netcdfFilename,this->_useFloat,
+        this->_useEtape,this->_useUltrasonic,this);
+    this->_ncdata->initialize();
+  }
+
 }
 
 void Monitor::run() {
@@ -95,6 +104,7 @@ void Monitor::checkStatus() {
   bool fl;
   QString message;
   QString title;
+  QDateTime now = QDateTime::currentDateTime();
 
   QTextStream out(stdout, QIODevice::WriteOnly);
 
@@ -123,7 +133,7 @@ void Monitor::checkStatus() {
 
     //...Generate the data for posting
     this->_monitorData.push_back(
-        new SumpData(QDateTime::currentDateTime(), wl, fl));
+        new SumpData(now, wl, fl));
 
     //...Check if data can be posted
     if (Network::isUp("http://"+QString(SERVER))) {
@@ -144,6 +154,13 @@ void Monitor::checkStatus() {
       out << "       Number of datasets in queue: " << this->_monitorData.size() << "\n";
       out.flush();
     }
+  }
+
+  //...Write netcdf formatted output
+  if ( this->_netcdfOutput ) {
+    SumpData *data = new SumpData(now,wl,fl);
+    this->_ncdata->writeToFile(data);
+    delete data;
   }
 
   //...Generate the status messages

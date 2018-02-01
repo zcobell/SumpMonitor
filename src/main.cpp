@@ -27,6 +27,9 @@ int main(int argc, char *argv[]) {
 
   bool isSingleSet, isContinuousSet, isQuietSet;
   bool isNotifySet, isPostSet, isFloatSet, isEtapeSet, isUltrasonicSet;
+  bool writeNetcdfOutput;
+
+  QString netcdfFilename;
 
   int defaultPollingInterval = 60;
   int defaultSamplingValue = 100;
@@ -84,6 +87,7 @@ int main(int argc, char *argv[]) {
       "Hour of the day to send a daily status confirmation. Useful in "
       "determining if the system has gone offline [default=8]",
       "1-24");
+  QCommandLineOption netcdfOption(QStringList() << "netcdf","Write a netcdf output file with the data","filename");
 
   intervalOption.setDefaultValue(QString::number(defaultPollingInterval));
   samplingOption.setDefaultValue(QString::number(defaultSamplingValue));
@@ -101,6 +105,7 @@ int main(int argc, char *argv[]) {
   parser.addOption(ultrasonicOption);
   parser.addOption(etapeOption);
   parser.addOption(notificationHourOption);
+  parser.addOption(netcdfOption);
 
   //...Process command line arguments
   parser.process(a);
@@ -121,6 +126,11 @@ int main(int argc, char *argv[]) {
   isFloatSet = parser.isSet(floatOption);
   isEtapeSet = parser.isSet(etapeOption);
   isUltrasonicSet = parser.isSet(ultrasonicOption);
+  writeNetcdfOutput = parser.isSet(netcdfOption);
+  if(writeNetcdfOutput)
+      netcdfFilename = parser.value(netcdfOption);
+  else
+      netcdfFilename = QString();
 
   int nsamples = parser.value(samplingOption).toInt();
 
@@ -148,7 +158,8 @@ int main(int argc, char *argv[]) {
   if (isSingleSet) {
     Monitor *sumpMonitor =
         new Monitor(0, nsamples, false, isQuietSet, isNotifySet, isPostSet,
-                    isUltrasonicSet, isFloatSet, isEtapeSet, hour, &a);
+                    isUltrasonicSet, isFloatSet, isEtapeSet, hour, writeNetcdfOutput,
+                    netcdfFilename, &a);
     QObject::connect(sumpMonitor, SIGNAL(finished()), &a, SLOT(quit()));
     QTimer::singleShot(0, sumpMonitor, SLOT(run()));
     return a.exec();
@@ -158,7 +169,8 @@ int main(int argc, char *argv[]) {
     int interval = parser.value(intervalOption).toInt();
     Monitor *sumpMonitor = new Monitor(interval, nsamples, true, isQuietSet,
                                        isNotifySet, isPostSet, isUltrasonicSet,
-                                       isFloatSet, isEtapeSet, hour, &a);
+                                       isFloatSet, isEtapeSet, hour, writeNetcdfOutput,
+                                       netcdfFilename, &a);
     QObject::connect(sumpMonitor, SIGNAL(finished()), &a, SLOT(quit()));
     QTimer::singleShot(0, sumpMonitor, SLOT(run()));
     return a.exec();

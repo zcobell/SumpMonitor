@@ -36,7 +36,8 @@ SOURCES += src/main.cpp \
     src/etapeSensor.cpp \
     src/postsqldata.cpp \
     src/sumpdata.cpp \
-    src/network.cpp
+    src/network.cpp \
+    src/netcdfdata.cpp
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -50,9 +51,10 @@ HEADERS += \
     src/postsqldata.h \
     src/sumpdata.h \
     src/pins.h \
-    src/network.h
+    src/network.h \
+    src/netcdfdata.h
 
-LIBS += -L../thirdparty/wiringPi/wiringPi -lwiringPi
+LIBS += -L../thirdparty/wiringPi/wiringPi -lwiringPi -lnetcdf
 
 INCLUDEPATH += src ../thirdparty/wiringPi/wiringPi
 

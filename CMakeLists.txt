@@ -31,7 +31,7 @@ FIND_PACKAGE(Qt5Core)
 IF(NOT Qt5Core_FOUND)
     MESSAGE(ERROR "Qt5 libraries not found")
 ENDIF(NOT Qt5Core_FOUND)
-FIND_PACKAGE(Qt5 REQUIRED COMPONENTS Core Sql Network)
+FIND_PACKAGE(Qt5 REQUIRED COMPONENTS Core Sql Network Widgets)
 
 ENABLE_LANGUAGE(C)
 ENABLE_LANGUAGE(CXX)
@@ -102,10 +102,11 @@ ADD_EXECUTABLE( sumpmonitor ${CMAKE_SOURCE_DIR}/src/main.cpp
                             ${CMAKE_SOURCE_DIR}/src/etapeSensor.cpp
                             ${CMAKE_SOURCE_DIR}/src/postsqldata.cpp
                             ${CMAKE_SOURCE_DIR}/src/sumpdata.cpp
-                            ${CMAKE_SOURCE_DIR}/src/network.cpp ) 
+                            ${CMAKE_SOURCE_DIR}/src/network.cpp 
+                            ${CMAKE_SOURCE_DIR}/src/netcdfdata.cpp ) 
 
 ADD_DEPENDENCIES(sumpmonitor wiringPi)
-TARGET_LINK_LIBRARIES(sumpmonitor wiringPi Qt5::Core Qt5::Network Qt5::Sql )
+TARGET_LINK_LIBRARIES(sumpmonitor netcdf netcdf_c++ wiringPi Qt5::Core Qt5::Network Qt5::Sql Qt5::Widgets )
 TARGET_INCLUDE_DIRECTORIES(sumpmonitor PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/thirdparty/wiringPi/wiringPi)
 TARGET_COMPILE_DEFINITIONS(sumpmonitor PRIVATE GIT_VERSION="${GIT_VERSION}")
 
