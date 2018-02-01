@@ -50,6 +50,7 @@ Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
   this->_floatSensor = nullptr;
   this->_netcdfOutput = netcdfOutput;
   this->_netcdfFilename = netcdfFilename;
+  this->_ncdata = nullptr;
 
   if (this->_useFloat)
     this->_floatSensor = new FloatSensor(this);

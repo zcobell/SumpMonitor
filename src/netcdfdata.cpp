@@ -31,6 +31,12 @@ NetcdfData::NetcdfData(QString filename, bool useFloat, bool useEtape, bool useU
     this->m_useFloat = useFloat;
     this->m_useEtape = useEtape;
     this->m_useUltrasonic = useUltrasonic;
+    this->m_ncid = 0;
+    this->m_varidetape = 0;
+    this->m_varidfloat = 0;
+    this->m_varidultrasonic = 0;
+    this->m_varidtime = 0;
+    this->m_dimidtime = 0;
 }
 
 NetcdfData::~NetcdfData() {}
@@ -135,6 +141,7 @@ bool NetcdfData::_open() {
 
 bool NetcdfData::_close() {
     NCCHECK(nc_close(this->m_ncid));
+    return true;
 }
 
 bool NetcdfData::writeToFile(SumpData *data){
@@ -169,6 +176,7 @@ bool NetcdfData::writeToFile(SumpData *data){
   }
 
   this->_close();
+  return true;
 }
 
 QString NetcdfData::_getCurrentUserName() {
