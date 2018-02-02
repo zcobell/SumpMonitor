@@ -81,7 +81,8 @@ bool NetcdfData::_createFile(){
     //...Create the netCDF file
     NCCHECK(nc_create(this->m_filename.toStdString().c_str(),NC_NETCDF4,&this->m_ncid));
     NCCHECK(nc_def_dim(this->m_ncid,"datetime",NC_UNLIMITED,&this->m_dimidtime));
-    NCCHECK(nc_def_var(this->m_ncid,"datetime",NC_LONG,1,&this->m_dimidtime,&this->m_varidtime));
+    NCCHECK(nc_def_var(this->m_ncid,"datetime",NC_INT64,1,&this->m_dimidtime,&this->m_varidtime));
+    NCCHECK(nc_def_var_deflate(this->m_ncid,this->m_varidtime,1,1,2));
     NCCHECK(nc_put_att(this->m_ncid,this->m_varidtime,"reference_date",NC_CHAR,refDate.length(),refDate.toStdString().c_str()));
 
     if(this->m_useFloat){
