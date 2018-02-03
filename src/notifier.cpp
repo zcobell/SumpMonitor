@@ -78,18 +78,22 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
       this->_nextNotification = QDateTime(QDate::currentDate().addDays(1),
                                           QTime(this->_notificationHour, 0, 0));
       this->_sendMessage(priority, title, message);
+      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
+               << ". Normal water level notification sent to PushOver.\n";
     } else {
       out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
-               << ". Notification suppressed until " << this->_nextNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
+               << ". Normal water level notification suppressed until " << this->_nextNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
     }
   } else if (priority == 1) {
     if (QDateTime::currentDateTime() > this->_nextHighNotification) {
       this->_lastHighNotification = QDateTime::currentDateTime();
       this->_nextHighNotification = QDateTime::currentDateTime().addSecs(21600);
       this->_sendMessage(priority, title, message);
+      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
+               << ". High water level notification sent to PushOver.\n";
     } else {
       out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
-               << ". High notification suppressed until "
+               << ". High water level notification suppressed until "
                << this->_nextHighNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
     }
   } else if (priority == 2) {
@@ -98,9 +102,11 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
       this->_nextCriticalNotification =
           QDateTime::currentDateTime().addSecs(3600);
       this->_sendMessage(priority, title, message);
+      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
+               << ". Critical water level notification sent to PushOver.\n";
     } else {
       out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
-               << ". Critical notification suppressed until "
+               << ". Critical water level notification suppressed until "
                << this->_nextCriticalNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
     }
   }

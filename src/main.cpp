@@ -23,6 +23,8 @@
 #include <QTimer>
 #include <stdio.h>
 
+void showBanner(QTextStream &stream);
+
 int main(int argc, char *argv[]) {
 
   bool isSingleSet, isContinuousSet, isQuietSet;
@@ -156,6 +158,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (isSingleSet) {
+    showBanner(out);
     Monitor *sumpMonitor =
         new Monitor(0, nsamples, false, isQuietSet, isNotifySet, isPostSet,
                     isUltrasonicSet, isFloatSet, isEtapeSet, hour, writeNetcdfOutput,
@@ -166,6 +169,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (isContinuousSet) {
+    showBanner(out);
     int interval = parser.value(intervalOption).toInt();
     Monitor *sumpMonitor = new Monitor(interval, nsamples, true, isQuietSet,
                                        isNotifySet, isPostSet, isUltrasonicSet,
@@ -175,4 +179,22 @@ int main(int argc, char *argv[]) {
     QTimer::singleShot(0, sumpMonitor, SLOT(run()));
     return a.exec();
   }
+}
+
+
+void showBanner(QTextStream &stream){
+  QStringList commandLine = QCoreApplication::arguments();
+  stream << "+------------------------------------------+\n";
+  stream << "|               SumpMonitor                |\n";
+  stream << "|                                          |\n";
+  stream << "|            By: Zach Cobell               |\n";
+  stream << "|             (c) 2017-2018                |\n";
+  stream << "|                                          |\n";
+  stream << "+------------------------------------------+\n\n";
+  stream << "SumpMonitor version is: " << QString(GIT_VERSION) << "\n\n";
+  stream << "SumpMonitor was run as: \n";
+  stream << "   " << commandLine.join(" ") << "\n\n";
+  stream << "SumpMonitor started at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") << "\n\n";
+  stream.flush();
+  return;
 }
