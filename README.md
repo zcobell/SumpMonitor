@@ -28,7 +28,7 @@ The SumpMonitor uses a few pieces of hardware to keep track of water levels. The
 3. eTape Water Level Sensor - [MiloneTech](https://milonetech.com/products/chemical-etape-assembly)
     * Note that I use the chemical version in hopes that it will last longer in the nasty water in the sump pit
 4. Ultrasonic Sensor - [Amazon](http://a.co/eqKbz1X)
-    * The code is set up to handle this sensor, however, I do not use it because the echo doesn't work well in my particular sump pit because there are too many obstacles. It is possible someone else may not have the issue.
+    * The code is set up to handle this sensor, however, I do not use it because the echo doesn't work well in my particular sump pit because there are too many obstacles. It is possible someone else may not have the issue so I've left this as an option.
 5. MCP3008 Analog to Digital Converter - [Amazon](http://a.co/gazDuli)
 6. Various small resistors, cables, etc that would be common to any basic RaspberryPi kit
 
@@ -39,22 +39,22 @@ SumpMonitor requires your system running a version of Qt5, Qt5SQL-MySQL, and Wir
 The code is set up so that it runs in a Linux environment on the RaspberryPi. My personal use case is to run a cron job every 10 minutes that checks if the code is still running. If the code is not running in the background, i.e. it crashed for some reason, the cron job restarts the code and a restart alert is sent via PushOver. The code will also send a confirmation-of-operation once per day to ensure that if you don't receive your morning alert, you know something is wrong. By default, this alert is set at 8am local time, however, the user can edit this. I also restart my RaspberryPi once per day anyway, so I coincide the cron restart job with the confirmation-of-operation alert.
 
 ### Command Line Switches
-|Switch|Function|
-|--|--|
-| `-h` | displays a help dialog
-| `-v` | displays the current version of the code
-| `-q` | does not display verbose messages as screen output
-| `--single` | runs the monitor once and exits the program
-| `--continuous` | runs the monitor continuously at a user specified interval
-| `--interval <s>` | time in seconds between each monitoring data point
-| `--push` | use the PushOver alert service
-| `--sql` | post the data to a SQL database
-|`--samples <n>` | attempts to smooth the sensor response if the data is noisy
-| `--float` | enables the float sensor
-| `--ultrasonic` | enables the ultrasonic sensor
-| `--etape` | enables the eTape sensor
-| `--time` | hour (0-23) to send the daily status confirmation
-
+| Switch               | Function                                                    |
+|----------------------|-------------------------------------------------------------|
+| `-h`                 | displays a help dialog
+| `-v`                 | displays the current version of the code
+| `-q`                 | does not display verbose messages as screen output
+| `--single`           | runs the monitor once and exits the program
+| `--continuous`       | runs the monitor continuously at a user specified interval
+| `--interval <s>`     | time in seconds between each monitoring data point
+| `--push`             | use the PushOver alert service
+| `--sql`              | post the data to a SQL database
+|`--samples <n>`       | attempts to smooth the sensor response if the data is noisy
+| `--float`            | enables the float sensor
+| `--ultrasonic`       | enables the ultrasonic sensor
+| `--etape`            | enables the eTape sensor
+| `--time`             | hour (0-23) to send the daily status confirmation
+| `--netcdf <file>`    | Write the data to a netcdf-4 formatted file
 
 ## Compiling
 
@@ -65,21 +65,34 @@ git submodule update --init
 ```
 With WiringPi installed, you're ready to compile the SumpMonitor.
 
+### netCDF
+NetCDF is currently a dependency of the code. Most Unix platforms make this readily available via a package manager. For Ubuntu/Debian type distributions, the following packages should be installed:
+*  `netcdf-bin`
+*  `libnetcdf-dev`
+
 ### Compiling SumpMonitor
 Before compiling, you'll need to define information about your system. Two files will need to be altered.
 
 #### Tokens
 The `tokens.h` file in the `src` directory defines the passwords that SumpMonitor will use to access PushOver and your SQL server depending on which options you ultimately select. The structure of the SQL table that SumpMonitor will write to should have the format:
-```
-id (bigint)(PrimaryKey,AutoIncrement) // time (datetime) // waterlevel (double) // floatstatus (tinyint)
-```
+
+| Field Name  | Field Data Type |     Field Attributes        |
+|-------------|-----------------|-----------------------------|
+| id          | bigint          | Primary Key, Auto Increment |
+| time        | datetime        | &nbsp;                      |
+| waterlevel  | double          | &nbsp;                      |
+| floatstatus | tinyint         | &nbsp;                      |
+
 You do not need to define the values in `tokens.h` if you are not using them. You can simply leave them as their default values.
 
 #### Pins
 The `pins.h` file in the `src` directory defines the pins that SumpMonitor should expect to use for various GPIO devices.
 
 ### Sensor Settings
-The `sensorlevel.h` file defines a number of variables related to the critical levels for the ultrasonic sensor and eTape sensor. It also is used to set the function used to llinearly interpolate from the raw sensor data provided by the eTape to water levels. 
+The `sensorlevel.h` file defines a number of variables related to the critical levels for the ultrasonic sensor and eTape sensor. It also is used to set the function used to llinearly interpolate from the raw sensor data provided by the eTape to water levels.
+
+### CMake
+The code is compiled using CMake. A Qt .pro file is also available, but is provided only as a development convenience for working with QtCreator.  
 
 ## Wiring Diagram
 Coming Soon! Unfortunately, I need to return to my notes to see exactly what all I did, however, it is fairly straight forward to connect the MCP3008 to the eTape and float sensor to the specified GPIO pin.
