@@ -1,21 +1,4 @@
-//------------------------------GPLv3------------------------------------//
-//
-//  This file is part of SumpMonitor.
-//
-//  SumpMonitor is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  SumpMonitor is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with SumpMonitor. If not, see <http://www.gnu.org/licenses/>.
-//
-//------------------------------GPLv3------------------------------------//
+
 function pad(num, size) {
     var s = "000000000" + num;
     return s.substr(s.length-size);
@@ -78,6 +61,7 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
     var i;
     var floatData = new Array();
     var waterData = new Array();
+    var cycleTime = new Array();
     var nRuns;
     var gallons;
     var dt;
@@ -104,6 +88,7 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
     {
         floatData[i] = new Array();
         waterData[i] = new Array();
+        cycleTime[i] = new Array();
         
         floatData[i][0] = m_date[i];
         waterData[i][0] = m_date[i];
@@ -125,8 +110,11 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
                 nRuns = nRuns + 1;
                 gallons = gallons + ( (waterData[i-1][1]-waterData[i][1]) * Math.PI * (sumpPitDiameter/2.0) * (sumpPitDiameter/2.0) ) / 231.0;
                 tempDate = new Date(m_date[i]);
-                if(nRuns>1)
+                if(nRuns>1){ 
                     dt = dt + (tempDate.getTime()-lastCycle.getTime())/oneHour;
+                    cycleTime[nRuns-2][0] = tempDate.getTime();
+                    cycleTime[nRuns-2][1] = (tempDate.getTime()-lastCycle.getTime())/oneHour;
+                }
                 lastCycle = tempDate;
             }
         }
@@ -241,6 +229,18 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
         xAxis: xData,
         yAxis: { labels: {format: '{value:.2f}'}, title: { text: 'Water Level (in)' }, gridLineWidth: 1, alternateGridColor: '#EEEEEE' },
         series: [{ name: "Water Level", data: waterData, color: '#0000FF' }],
+        plotOptions: { line: { marker: { enabled: false }}}
+    });
+
+    $('#cycletime').highcharts({
+        title: {
+            text: 'Sump Cycle Time',
+            x: -20 //center
+        },
+        chart : { zoomType: "xy" },
+        xAxis: xData,
+        yAxis: { labels: {format: '{value:.2f}'}, title: { text: 'Cycle Time (hr)' }, gridLineWidth: 1, alternateGridColor: '#EEEEEE' },
+        series: [{ name: "Cycle Time", data: cycleTime, color: '#0000FF' }],
         plotOptions: { line: { marker: { enabled: false }}}
     });
     
