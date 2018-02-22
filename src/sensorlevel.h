@@ -29,8 +29,8 @@ namespace SensorLevel{
   const double ultrasonicEmergencyLevel = 20.0;
 
   //...Linear calibration line for the eTape
-  const double eTapeRegressionYIntercept = -53.785960;
-  const double eTapeRegressionSlope = 0.109359;
+  const double eTapeRegressionYIntercept = 57.23;
+  const double eTapeRegressionSlope = -0.1078;
 }
 
 #endif //SENSORLEVEL_H

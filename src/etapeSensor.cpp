@@ -36,6 +36,8 @@ EtapeSensor::EtapeSensor(int nSamples, QObject *parent) : QObject(parent) {
 
 double EtapeSensor::getWaterLevel(int &ierr) { return this->_readEtape(ierr); }
 
+double EtapeSensor::getWaterLevel(int &raw, int &ierr) { return this->_readEtape(raw,ierr); }
+
 double EtapeSensor::_readEtape(int &ierr) {
   int i;
   double waterlevel;
@@ -52,6 +54,12 @@ double EtapeSensor::_readEtape(int &ierr) {
   waterlevel = this->_analyzeMeasurements(measurements);
   ierr = 0;
   return waterlevel;
+}
+
+double EtapeSensor::_readEtape(int &raw, int &ierr) {
+  ierr = 0;
+  raw = analogRead(SPI_BASE + SPI_CHANNEL_ETAPE);
+  return this->_interpolateWaterLevel(raw);
 }
 
 double EtapeSensor::_interpolateWaterLevel(int reading) {

@@ -17,6 +17,7 @@
 //
 //------------------------------GPLv3------------------------------------//
 #include "monitor.h"
+#include "calibration.h"
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QCoreApplication>
@@ -27,7 +28,7 @@ void showBanner(QTextStream &stream);
 
 int main(int argc, char *argv[]) {
 
-  bool isSingleSet, isContinuousSet, isQuietSet;
+  bool isSingleSet, isContinuousSet, isQuietSet, isCalibrationSet;
   bool isNotifySet, isPostSet, isFloatSet, isEtapeSet, isUltrasonicSet;
   bool writeNetcdfOutput;
 
@@ -90,6 +91,7 @@ int main(int argc, char *argv[]) {
       "determining if the system has gone offline [default=8]",
       "1-24");
   QCommandLineOption netcdfOption(QStringList() << "netcdf","Write a netcdf output file with the data","filename");
+  QCommandLineOption calibrationOption(QStringList() << "calibration","Run the monitor in eTape calibration mode");
 
   intervalOption.setDefaultValue(QString::number(defaultPollingInterval));
   samplingOption.setDefaultValue(QString::number(defaultSamplingValue));
@@ -108,6 +110,7 @@ int main(int argc, char *argv[]) {
   parser.addOption(etapeOption);
   parser.addOption(notificationHourOption);
   parser.addOption(netcdfOption);
+  parser.addOption(calibrationOption);
 
   //...Process command line arguments
   parser.process(a);
@@ -128,7 +131,9 @@ int main(int argc, char *argv[]) {
   isFloatSet = parser.isSet(floatOption);
   isEtapeSet = parser.isSet(etapeOption);
   isUltrasonicSet = parser.isSet(ultrasonicOption);
+  isCalibrationSet = parser.isSet(calibrationOption);
   writeNetcdfOutput = parser.isSet(netcdfOption);
+
   if(writeNetcdfOutput)
       netcdfFilename = parser.value(netcdfOption);
   else
@@ -151,10 +156,17 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  if (!isSingleSet && !isContinuousSet) {
-    out << "ERROR: No operation mode selected (single or continuous)\n";
+  if (!isSingleSet && !isContinuousSet && !isCalibrationSet) {
+    out << "ERROR: No operation mode selected (single, continuous, or calibration)\n";
     out.flush();
     return 1;
+  }
+
+  if (isCalibrationSet) {
+    Calibration *c = new Calibration(&a);
+    QObject::connect(c, SIGNAL(finished()), &a, SLOT(quit()));
+    QTimer::singleShot(0, c, SLOT(run()));
+    return a.exec();
   }
 
   if (isSingleSet) {

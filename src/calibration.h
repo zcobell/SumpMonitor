@@ -16,28 +16,28 @@
 //  along with SumpMonitor. If not, see <http://www.gnu.org/licenses/>.
 //
 //------------------------------GPLv3------------------------------------//
-#ifndef ETAPESENSOR_H
-#define ETAPESENSOR_H
+#ifndef CALIBRATION_H
+#define CALIBRATION_H
 
-#include "pins.h"
-#include <QObject>
-#include <QVector>
+#include "etapeSensor.h"
 
-class EtapeSensor : public QObject {
+class Calibration : public QObject {
   Q_OBJECT
 public:
-  explicit EtapeSensor(int nSamples, QObject *parent = 0);
+  explicit Calibration(QObject *parent = 0);
 
-  double getWaterLevel(int &ierr);
-  double getWaterLevel(int &raw, int &ierr);
+signals:
+  void finished();
+  void calibrationError();
+
+public slots:
+  void run();
+  void checkStatus();
+  void endCalibration();
 
 private:
-  double _readEtape(int &ierr);
-  double _readEtape(int &raw, int &ierr);
-  double _interpolateWaterLevel(int reading);
-  double _analyzeMeasurements(QVector<double> measurements);
-
-  int _nSamples = 100;
+  
+  EtapeSensor *_etapeSensor;
 };
 
-#endif // ETAPESENSOR_H
+#endif // CALIBRATION_H

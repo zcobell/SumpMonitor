@@ -103,7 +103,9 @@ ADD_EXECUTABLE( sumpmonitor ${CMAKE_SOURCE_DIR}/src/main.cpp
                             ${CMAKE_SOURCE_DIR}/src/postsqldata.cpp
                             ${CMAKE_SOURCE_DIR}/src/sumpdata.cpp
                             ${CMAKE_SOURCE_DIR}/src/network.cpp 
-                            ${CMAKE_SOURCE_DIR}/src/netcdfdata.cpp ) 
+                            ${CMAKE_SOURCE_DIR}/src/netcdfdata.cpp
+                            ${CMAKE_SOURCE_DIR}/src/calibration.cpp ) 
+
 
 ADD_DEPENDENCIES(sumpmonitor wiringPi)
 TARGET_LINK_LIBRARIES(sumpmonitor netcdf netcdf_c++ wiringPi Qt5::Core Qt5::Network Qt5::Sql Qt5::Widgets )
