@@ -23,21 +23,20 @@
 
 class Calibration : public QObject {
   Q_OBJECT
-public:
+ public:
   explicit Calibration(QObject *parent = 0);
 
-signals:
+ signals:
   void finished();
   void calibrationError();
 
-public slots:
+ public slots:
   void run();
   void checkStatus();
   void endCalibration();
 
-private:
-  
+ private:
   EtapeSensor *_etapeSensor;
 };
 
-#endif // CALIBRATION_H
+#endif  // CALIBRATION_H

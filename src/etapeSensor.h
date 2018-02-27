@@ -19,19 +19,19 @@
 #ifndef ETAPESENSOR_H
 #define ETAPESENSOR_H
 
-#include "pins.h"
 #include <QObject>
 #include <QVector>
+#include "pins.h"
 
 class EtapeSensor : public QObject {
   Q_OBJECT
-public:
+ public:
   explicit EtapeSensor(int nSamples, QObject *parent = 0);
 
   double getWaterLevel(int &ierr);
   double getWaterLevel(int &raw, int &ierr);
 
-private:
+ private:
   double _readEtape(int &ierr);
   double _readEtape(int &raw, int &ierr);
   double _interpolateWaterLevel(int reading);
@@ -40,4 +40,4 @@ private:
   int _nSamples = 100;
 };
 
-#endif // ETAPESENSOR_H
+#endif  // ETAPESENSOR_H

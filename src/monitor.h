@@ -19,34 +19,34 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
+#include <QVector>
 #include "etapeSensor.h"
 #include "floatSensor.h"
+#include "netcdfdata.h"
 #include "notifier.h"
 #include "postsqldata.h"
 #include "sumpdata.h"
 #include "ultrasonicSensor.h"
-#include "netcdfdata.h"
-#include <QVector>
 
 class Monitor : public QObject {
   Q_OBJECT
-public:
+ public:
   explicit Monitor(int monitoringInterval, int nsamples, bool continuous,
                    bool quiet, bool notifications, bool postData,
                    bool ultrasonicSensor, bool floatSensor, bool etapeSensor,
-                   int notificationHour, bool netcdfOutput, QString netcdfFilename,
-                   QObject *parent = 0);
+                   int notificationHour, bool netcdfOutput,
+                   QString netcdfFilename, QObject *parent = 0);
 
-signals:
+ signals:
   void finished();
   void monitorError();
 
-public slots:
+ public slots:
   void run();
   void checkStatus();
   void endMonitor();
 
-private:
+ private:
   int _monitoringInterval;
   int _nsamples;
   bool _continuous;
@@ -71,4 +71,4 @@ private:
                             QString &title, QString &message);
 };
 
-#endif // MONITOR_H
+#endif  // MONITOR_H

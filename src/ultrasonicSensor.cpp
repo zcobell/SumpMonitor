@@ -17,11 +17,11 @@
 //
 //------------------------------GPLv3------------------------------------//
 #include "ultrasonicSensor.h"
-#include "wiringPi.h"
+#include <unistd.h>
 #include <QElapsedTimer>
 #include <QThread>
 #include <QTime>
-#include <unistd.h>
+#include "wiringPi.h"
 
 UltrasonicSensor::UltrasonicSensor(int n, QObject *parent) : QObject(parent) {
   this->_speedOfSound =
@@ -46,7 +46,6 @@ double UltrasonicSensor::getWaterLevel(int &ierr) {
 }
 
 double UltrasonicSensor::_probeWaterLevel(int &ierr) {
-
   struct timespec tim, tim2;
   tim.tv_sec = 0;
   tim.tv_nsec = 10000L;
@@ -94,8 +93,7 @@ double UltrasonicSensor::_probeWaterLevel(int &ierr) {
   //...Return the distance to the object
   //   and determine if we think this
   //   measurement is valid (i.e. > 8ft is bogus)
-  if (distance > 8.0)
-    ierr = -1;
+  if (distance > 8.0) ierr = -1;
 
   return distance;
 }

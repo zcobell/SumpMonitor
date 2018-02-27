@@ -21,11 +21,10 @@
 
 FloatSensor::FloatSensor(QObject *parent) : QObject(parent) {
   this->_floatPin = FLOAT_PIN;
-  
+
   //...Map the read location
   wiringPiSetup();
   pinMode(this->_floatPin, INPUT);
-
 }
 
 bool FloatSensor::getFloatStatus(int &ierr) {

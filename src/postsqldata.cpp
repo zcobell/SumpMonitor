@@ -17,8 +17,8 @@
 //
 //------------------------------GPLv3------------------------------------//
 #include "postsqldata.h"
-#include "tokens.h"
 #include <QtSql>
+#include "tokens.h"
 
 PostSQLData::PostSQLData(QObject *parent) : QObject(parent) {}
 
@@ -56,8 +56,7 @@ bool PostSQLData::_postData(QDateTime time, double waterlevel,
   if (ierr == 1) {
     ierr = this->closeDatabase();
     ierr = this->initDatabase();
-    if (ierr != 0)
-      return false;
+    if (ierr != 0) return false;
   }
 
   wl.sprintf("%0.4f", waterlevel);
@@ -71,9 +70,11 @@ bool PostSQLData::_postData(QDateTime time, double waterlevel,
 
   sqlData = "(NULL, '" + ts + "', '" + wl + "', " + fs + ")";
 
-  sqlString = QString("INSERT INTO `"+QString(DBNAME)+"`.`"+QString(TABLENAME)+"` "
-                      "(`id`, `time`, `waterlevel`, `floatstatus`) VALUES" +
-                      sqlData + ";");
+  sqlString =
+      QString("INSERT INTO `" + QString(DBNAME) + "`.`" + QString(TABLENAME) +
+              "` "
+              "(`id`, `time`, `waterlevel`, `floatstatus`) VALUES" +
+              sqlData + ";");
 
   this->database.exec(sqlString);
   if (this->database.lastError().type() != QSqlError::NoError) {

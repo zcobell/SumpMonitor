@@ -18,12 +18,12 @@
 //------------------------------GPLv3------------------------------------//
 #include "notifier.h"
 #include <stdio.h>
-#include "sumpmonitor.h"
-#include "tokens.h"
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QUrl>
 #include <QUrlQuery>
+#include "sumpmonitor.h"
+#include "tokens.h"
 
 Notifier::Notifier(int notificationHour, QObject *parent) : QObject(parent) {
   this->_networkManager = new QNetworkAccessManager(this);
@@ -78,23 +78,29 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
       this->_nextNotification = QDateTime(QDate::currentDate().addDays(1),
                                           QTime(this->_notificationHour, 0, 0));
       this->_sendMessage(priority, title, message);
-      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
-               << ". Normal water level notification sent to PushOver.\n";
+      out << "INFO: Monitor run at "
+          << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+          << ". Normal water level notification sent to PushOver.\n";
     } else {
-      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
-               << ". Normal water level notification suppressed until " << this->_nextNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
+      out << "INFO: Monitor run at "
+          << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+          << ". Normal water level notification suppressed until "
+          << this->_nextNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
     }
   } else if (priority == 1) {
     if (QDateTime::currentDateTime() > this->_nextHighNotification) {
       this->_lastHighNotification = QDateTime::currentDateTime();
       this->_nextHighNotification = QDateTime::currentDateTime().addSecs(21600);
       this->_sendMessage(priority, title, message);
-      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
-               << ". High water level notification sent to PushOver.\n";
+      out << "INFO: Monitor run at "
+          << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+          << ". High water level notification sent to PushOver.\n";
     } else {
-      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
-               << ". High water level notification suppressed until "
-               << this->_nextHighNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
+      out << "INFO: Monitor run at "
+          << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+          << ". High water level notification suppressed until "
+          << this->_nextHighNotification.toString("MM/dd/yyyy hh:mm:ss")
+          << ".\n";
     }
   } else if (priority == 2) {
     if (QDateTime::currentDateTime() > this->_nextCriticalNotification) {
@@ -102,12 +108,15 @@ int Notifier::sendMessage(int priority, QString title, QString message) {
       this->_nextCriticalNotification =
           QDateTime::currentDateTime().addSecs(3600);
       this->_sendMessage(priority, title, message);
-      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") 
-               << ". Critical water level notification sent to PushOver.\n";
+      out << "INFO: Monitor run at "
+          << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+          << ". Critical water level notification sent to PushOver.\n";
     } else {
-      out      << "INFO: Monitor run at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
-               << ". Critical water level notification suppressed until "
-               << this->_nextCriticalNotification.toString("MM/dd/yyyy hh:mm:ss") << ".\n";
+      out << "INFO: Monitor run at "
+          << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+          << ". Critical water level notification suppressed until "
+          << this->_nextCriticalNotification.toString("MM/dd/yyyy hh:mm:ss")
+          << ".\n";
     }
   }
   return 0;

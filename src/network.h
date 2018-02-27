@@ -28,13 +28,13 @@
 class Network : public QObject {
   Q_OBJECT
 
-public:
+ public:
   static bool isUp();
 
   static bool isUp(QString networkAddress);
 
-private:
+ private:
   static bool _isUp(QString networkAddress);
 };
 
-#endif //NETWORK_H
+#endif  // NETWORK_H

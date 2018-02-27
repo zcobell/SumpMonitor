@@ -25,7 +25,7 @@
 
 class Notifier : public QObject {
   Q_OBJECT
-public:
+ public:
   explicit Notifier(int notificationHour, QObject *parent = 0);
   ~Notifier();
 
@@ -33,13 +33,13 @@ public:
 
   int sendRestartMessage();
 
-signals:
+ signals:
   void finished();
 
-public slots:
+ public slots:
   void onPostAnswer(QNetworkReply *reply);
 
-private:
+ private:
   QNetworkAccessManager *_networkManager;
   QDateTime _lastNotification, _lastHighNotification, _lastCriticalNotification;
   QDateTime _nextNotification, _nextHighNotification, _nextCriticalNotification;
@@ -48,4 +48,4 @@ private:
   int _sendMessage(int priority, QString title, QString message);
 };
 
-#endif // SENDNOTIFICATION_H
+#endif  // SENDNOTIFICATION_H

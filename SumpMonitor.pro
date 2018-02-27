@@ -37,7 +37,8 @@ SOURCES += src/main.cpp \
     src/postsqldata.cpp \
     src/sumpdata.cpp \
     src/network.cpp \
-    src/netcdfdata.cpp
+    src/netcdfdata.cpp \
+    src/calibration.cpp
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -52,11 +53,12 @@ HEADERS += \
     src/sumpdata.h \
     src/pins.h \
     src/network.h \
-    src/netcdfdata.h
+    src/netcdfdata.h \
+    src/calibration.h
 
 LIBS += -L../thirdparty/wiringPi/wiringPi -lwiringPi -lnetcdf
 
-INCLUDEPATH += src ../thirdparty/wiringPi/wiringPi
+INCLUDEPATH += src thirdparty/wiringPi/wiringPi
 
 GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"

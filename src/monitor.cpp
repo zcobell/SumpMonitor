@@ -17,22 +17,22 @@
 //
 //------------------------------GPLv3------------------------------------//
 #include "monitor.h"
+#include <stdio.h>
+#include <QObject>
+#include <QTimer>
 #include "etapeSensor.h"
 #include "floatSensor.h"
 #include "network.h"
+#include "sensorlevel.h"
 #include "sumpmonitor.h"
 #include "tokens.h"
 #include "ultrasonicSensor.h"
-#include <QObject>
-#include <QTimer>
-#include "sensorlevel.h"
-#include <stdio.h>
 
 Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
                  bool quiet, bool notifications, bool postData,
                  bool ultrasonicSensor, bool floatSensor, bool etapeSensor,
-                 int notificationHour, bool netcdfOutput, QString netcdfFilename, 
-                 QObject *parent)
+                 int notificationHour, bool netcdfOutput,
+                 QString netcdfFilename, QObject *parent)
     : QObject(parent) {
   this->pushMessageSender = new Notifier(notificationHour, this);
   this->sqlDatabase = new PostSQLData(this);
@@ -52,22 +52,19 @@ Monitor::Monitor(int monitoringInterval, int nsamples, bool continuous,
   this->_netcdfFilename = netcdfFilename;
   this->_ncdata = nullptr;
 
-  if (this->_useFloat)
-    this->_floatSensor = new FloatSensor(this);
+  if (this->_useFloat) this->_floatSensor = new FloatSensor(this);
   if (this->_useUltrasonic)
     this->_ultrasonicSensor = new UltrasonicSensor(this->_nsamples, this);
   if (this->_useEtape)
     this->_etapeSensor = new EtapeSensor(this->_nsamples, this);
-  if(this->_netcdfOutput) {
-    this->_ncdata = new NetcdfData(this->_netcdfFilename,this->_useFloat,
-        this->_useEtape,this->_useUltrasonic,this);
+  if (this->_netcdfOutput) {
+    this->_ncdata = new NetcdfData(this->_netcdfFilename, this->_useFloat,
+                                   this->_useEtape, this->_useUltrasonic, this);
     this->_ncdata->initialize();
   }
-
 }
 
 void Monitor::run() {
-
   QTextStream out(stdout, QIODevice::WriteOnly);
 
   if (this->_verbose) {
@@ -112,70 +109,71 @@ void Monitor::checkStatus() {
   //...Check the water level in the sump
   if (this->_useUltrasonic) {
     wl = this->_ultrasonicSensor->getWaterLevel(ierr);
-    if (ierr != 0)
-      wl = 0.0;
+    if (ierr != 0) wl = 0.0;
   } else if (this->_useEtape) {
     wl = this->_etapeSensor->getWaterLevel(ierr);
-    if (ierr != 0)
-      wl = 0.0;
+    if (ierr != 0) wl = 0.0;
   } else
     wl = 0.0;
 
   //...Check the basin float status
   if (this->_useFloat) {
     fl = this->_floatSensor->getFloatStatus(ierr);
-    if (ierr != 0)
-      fl = false;
+    if (ierr != 0) fl = false;
   } else
     fl = false;
 
   //...Post data to SQL database on web server
   if (this->_postData) {
-
     //...Generate the data for posting
-    this->_monitorData.push_back(
-        new SumpData(now, wl, fl));
+    this->_monitorData.push_back(new SumpData(now, wl, fl));
 
     //...Check if data can be posted
-    if (Network::isUp("http://"+QString(SERVER))) {
+    if (Network::isUp("http://" + QString(SERVER))) {
       int sizeBefore = this->_monitorData.size();
       this->sqlDatabase->initDatabase();
       this->sqlDatabase->postData(this->_monitorData);
       this->sqlDatabase->closeDatabase();
       int sizeAfter = this->_monitorData.size();
 
-      if(sizeBefore > 1 && sizeAfter == 0){
-          out << "INFO: Server returned to service at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") << "\n";
-          out << "      " << sizeBefore << " datasets were successfully posted.\n"; 
-          out.flush();
+      if (sizeBefore > 1 && sizeAfter == 0) {
+        out << "INFO: Server returned to service at "
+            << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+            << "\n";
+        out << "      " << sizeBefore
+            << " datasets were successfully posted.\n";
+        out.flush();
       }
 
     } else {
-      out << "ERROR: Server down at " << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss") << "\n";
-      out << "       Number of datasets in queue: " << this->_monitorData.size() << "\n";
+      out << "ERROR: Server down at "
+          << QDateTime::currentDateTime().toString("MM/dd/yyyy hh:mm:ss")
+          << "\n";
+      out << "       Number of datasets in queue: " << this->_monitorData.size()
+          << "\n";
       out.flush();
     }
   }
 
   //...Write netcdf formatted output
-  if ( this->_netcdfOutput ) {
-    SumpData *data = new SumpData(now,wl,fl);
+  if (this->_netcdfOutput) {
+    SumpData *data = new SumpData(now, wl, fl);
     this->_ncdata->writeToFile(data);
     delete data;
   }
 
   //...Generate the status messages
   if (this->_notifications) {
-    
     this->generateStatusMessage(fl, wl, priority, title, message);
-    
+
     //...Send the message if possible
-    if(Network::isUp("http://pushover.net")){
-        ierr = this->pushMessageSender->sendMessage(priority, title, message);
-        if (ierr != 0)
-          endMonitor();
+    if (Network::isUp("http://pushover.net")) {
+      ierr = this->pushMessageSender->sendMessage(priority, title, message);
+      if (ierr != 0) endMonitor();
     } else {
-        out << "ERROR: PushOver service not available. Message not sent was: \n    " << message << "\n";
+      out << "ERROR: PushOver service not available. Message not sent was: \n  "
+             "  "
+          << message << "\n";
     }
   }
 
@@ -196,11 +194,13 @@ void Monitor::checkStatus() {
                      " inches                             |\n");
     if (this->_useFloat) {
       if (fl)
-        out << QString("|     Float Status: Triggered                          "
-                       "       |\n");
+        out << QString(
+            "|     Float Status: Triggered                          "
+            "       |\n");
       else
-        out << QString("|     Float Status: Not Triggered                      "
-                       "       |\n");
+        out << QString(
+            "|     Float Status: Not Triggered                      "
+            "       |\n");
     }
     out << QString(
         "|-------------------------------------------------------------| \n\n");
@@ -215,74 +215,75 @@ int Monitor::generateStatusMessage(bool floatStatus, double waterLevel,
                                    QString &message) {
   QString wls;
   wls.sprintf("%5.2f", waterLevel);
-  
+
   //...Use float as first and most critical
-  if( this->_useFloat ){
-      if (floatStatus) {
-        priority = Priority::Emergency;
-        title = "Sump Level Critical!";
-        if (this->_useUltrasonic || this->_useEtape) {
-            message = "CRITICAL! Sump Water Level is " + wls +
-                      " inches. Attention is required immediately. The high water "
-                      "float has been toggled.";
-        } else {
-            message = "CRITICAL! The high water float has been toggled. "
-                      "Attention required immediately.";
-        }
-        return 0;
+  if (this->_useFloat) {
+    if (floatStatus) {
+      priority = Priority::Emergency;
+      title = "Sump Level Critical!";
+      if (this->_useUltrasonic || this->_useEtape) {
+        message = "CRITICAL! Sump Water Level is " + wls +
+                  " inches. Attention is required immediately. The high water "
+                  "float has been toggled.";
+      } else {
+        message =
+            "CRITICAL! The high water float has been toggled. "
+            "Attention required immediately.";
       }
-  } else if ( !this->_useUltrasonic && !this->_useEtape ) {
-      priority = Priority::Standard;
-      title = "Sump Level is Normal.";
-      message = message + " The high water float has not been toggled yet.";
       return 0;
+    }
+  } else if (!this->_useUltrasonic && !this->_useEtape) {
+    priority = Priority::Standard;
+    title = "Sump Level is Normal.";
+    message = message + " The high water float has not been toggled yet.";
+    return 0;
   }
 
   //...Continue to water level sensors
-  if(this->_useEtape || this->_useUltrasonic){
+  if (this->_useEtape || this->_useUltrasonic) {
+    double waterLevelHigh, waterLevelCritical;
 
-    double waterLevelHigh,waterLevelCritical;
-
-    if(this->_useEtape){
-        waterLevelCritical = SensorLevel::eTapeEmergencyLevel;
-        waterLevelHigh = SensorLevel::eTapeHighLevel;
+    if (this->_useEtape) {
+      waterLevelCritical = SensorLevel::eTapeEmergencyLevel;
+      waterLevelHigh = SensorLevel::eTapeHighLevel;
     } else {
-        waterLevelCritical = SensorLevel::ultrasonicEmergencyLevel;
-        waterLevelHigh = SensorLevel::ultrasonicHighLevel;
+      waterLevelCritical = SensorLevel::ultrasonicEmergencyLevel;
+      waterLevelHigh = SensorLevel::ultrasonicHighLevel;
     }
 
-    if ( waterLevel >= waterLevelCritical ) {
+    if (waterLevel >= waterLevelCritical) {
       priority = Priority::Emergency;
       title = "Sump Level is Critical!";
       message = "Sump pump should be checked immediately. Water level is " +
                 wls + " inches.";
-      if(this->_useFloat)
-          message = message + " The high water float has not been toggled yet.";
+      if (this->_useFloat)
+        message = message + " The high water float has not been toggled yet.";
       return 0;
-    } else if (waterLevel >= waterLevelHigh ) {
+    } else if (waterLevel >= waterLevelHigh) {
       priority = Priority::High;
       title = "Sump Level is Abnormal";
       message = "Sump pump should be checked immediately. Water level is " +
                 wls + " inches.";
-      if(this->_useFloat)
-          message = message + " The high water float has not been toggled yet.";
+      if (this->_useFloat)
+        message = message + " The high water float has not been toggled yet.";
       return 0;
     } else {
       priority = Priority::Standard;
       title = "Sump Level is Normal";
-      message = "Sump level is normal. No need for action at this time. Water "
-                "level is " + wls + " inches.";
-      if(this->_useFloat)
-          message = message + " The high water float has not been toggled.";
+      message =
+          "Sump level is normal. No need for action at this time. Water "
+          "level is " +
+          wls + " inches.";
+      if (this->_useFloat)
+        message = message + " The high water float has not been toggled.";
       return 0;
     }
-
   }
-  
+
   priority = Priority::Standard;
   title = "Sump Level is Unknown";
   message = "No sensors are active.";
-  
+
   return 0;
 }
 

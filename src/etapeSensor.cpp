@@ -17,16 +17,15 @@
 //
 //------------------------------GPLv3------------------------------------//
 #include "etapeSensor.h"
-#include "mcp3004.h"
-#include "pins.h"
-#include "wiringPi.h"
+#include <unistd.h>
 #include <QThread>
 #include <algorithm>
-#include <unistd.h>
+#include "mcp3004.h"
+#include "pins.h"
 #include "sensorlevel.h"
+#include "wiringPi.h"
 
 EtapeSensor::EtapeSensor(int nSamples, QObject *parent) : QObject(parent) {
-
   this->_nSamples = nSamples;
 
   //...Setup the SPI channels
@@ -36,7 +35,9 @@ EtapeSensor::EtapeSensor(int nSamples, QObject *parent) : QObject(parent) {
 
 double EtapeSensor::getWaterLevel(int &ierr) { return this->_readEtape(ierr); }
 
-double EtapeSensor::getWaterLevel(int &raw, int &ierr) { return this->_readEtape(raw,ierr); }
+double EtapeSensor::getWaterLevel(int &raw, int &ierr) {
+  return this->_readEtape(raw, ierr);
+}
 
 double EtapeSensor::_readEtape(int &ierr) {
   int i;
@@ -66,8 +67,8 @@ double EtapeSensor::_interpolateWaterLevel(int reading) {
   //...Use defined slope and intercept
   //   to calculate water level as a function
   //   of reading from etape
-  return SensorLevel::eTapeRegressionSlope * (double)reading + 
-            SensorLevel::eTapeRegressionYIntercept;
+  return SensorLevel::eTapeRegressionSlope * (double)reading +
+         SensorLevel::eTapeRegressionYIntercept;
 }
 
 double EtapeSensor::_analyzeMeasurements(QVector<double> measurements) {
@@ -88,8 +89,7 @@ double EtapeSensor::_analyzeMeasurements(QVector<double> measurements) {
     }
     wl = wl / n;
   } else {
-    for (i = 0; i < measurements.size(); i++)
-      wl = wl + measurements[i];
+    for (i = 0; i < measurements.size(); i++) wl = wl + measurements[i];
     wl = wl / measurements.size();
   }
   return wl;

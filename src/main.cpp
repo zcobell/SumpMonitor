@@ -16,18 +16,17 @@
 //  along with SumpMonitor. If not, see <http://www.gnu.org/licenses/>.
 //
 //------------------------------GPLv3------------------------------------//
-#include "monitor.h"
-#include "calibration.h"
+#include <stdio.h>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QTimer>
-#include <stdio.h>
+#include "calibration.h"
+#include "monitor.h"
 
 void showBanner(QTextStream &stream);
 
 int main(int argc, char *argv[]) {
-
   bool isSingleSet, isContinuousSet, isQuietSet, isCalibrationSet;
   bool isNotifySet, isPostSet, isFloatSet, isEtapeSet, isUltrasonicSet;
   bool writeNetcdfOutput;
@@ -47,8 +46,9 @@ int main(int argc, char *argv[]) {
 
   //...Set up the command line parser
   parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
-  parser.setApplicationDescription("Real Time Sump Pump Monitoring Using "
-                                   "Raspberry Pi \n\nAuthor: Zach Cobell");
+  parser.setApplicationDescription(
+      "Real Time Sump Pump Monitoring Using "
+      "Raspberry Pi \n\nAuthor: Zach Cobell");
   parser.addHelpOption();
   parser.addVersionOption();
 
@@ -90,8 +90,12 @@ int main(int argc, char *argv[]) {
       "Hour of the day to send a daily status confirmation. Useful in "
       "determining if the system has gone offline [default=8]",
       "1-24");
-  QCommandLineOption netcdfOption(QStringList() << "netcdf","Write a netcdf output file with the data","filename");
-  QCommandLineOption calibrationOption(QStringList() << "calibration","Run the monitor in eTape calibration mode");
+  QCommandLineOption netcdfOption(QStringList() << "netcdf",
+                                  "Write a netcdf output file with the data",
+                                  "filename");
+  QCommandLineOption calibrationOption(
+      QStringList() << "calibration",
+      "Run the monitor in eTape calibration mode");
 
   intervalOption.setDefaultValue(QString::number(defaultPollingInterval));
   samplingOption.setDefaultValue(QString::number(defaultSamplingValue));
@@ -134,10 +138,10 @@ int main(int argc, char *argv[]) {
   isCalibrationSet = parser.isSet(calibrationOption);
   writeNetcdfOutput = parser.isSet(netcdfOption);
 
-  if(writeNetcdfOutput)
-      netcdfFilename = parser.value(netcdfOption);
+  if (writeNetcdfOutput)
+    netcdfFilename = parser.value(netcdfOption);
   else
-      netcdfFilename = QString();
+    netcdfFilename = QString();
 
   int nsamples = parser.value(samplingOption).toInt();
 
@@ -157,7 +161,8 @@ int main(int argc, char *argv[]) {
   }
 
   if (!isSingleSet && !isContinuousSet && !isCalibrationSet) {
-    out << "ERROR: No operation mode selected (single, continuous, or calibration)\n";
+    out << "ERROR: No operation mode selected (single, continuous, or "
+           "calibration)\n";
     out.flush();
     return 1;
   }
@@ -171,10 +176,9 @@ int main(int argc, char *argv[]) {
 
   if (isSingleSet) {
     showBanner(out);
-    Monitor *sumpMonitor =
-        new Monitor(0, nsamples, false, isQuietSet, isNotifySet, isPostSet,
-                    isUltrasonicSet, isFloatSet, isEtapeSet, hour, writeNetcdfOutput,
-                    netcdfFilename, &a);
+    Monitor *sumpMonitor = new Monitor(
+        0, nsamples, false, isQuietSet, isNotifySet, isPostSet, isUltrasonicSet,
+        isFloatSet, isEtapeSet, hour, writeNetcdfOutput, netcdfFilename, &a);
     QObject::connect(sumpMonitor, SIGNAL(finished()), &a, SLOT(quit()));
     QTimer::singleShot(0, sumpMonitor, SLOT(run()));
     return a.exec();
@@ -183,18 +187,17 @@ int main(int argc, char *argv[]) {
   if (isContinuousSet) {
     showBanner(out);
     int interval = parser.value(intervalOption).toInt();
-    Monitor *sumpMonitor = new Monitor(interval, nsamples, true, isQuietSet,
-                                       isNotifySet, isPostSet, isUltrasonicSet,
-                                       isFloatSet, isEtapeSet, hour, writeNetcdfOutput,
-                                       netcdfFilename, &a);
+    Monitor *sumpMonitor =
+        new Monitor(interval, nsamples, true, isQuietSet, isNotifySet,
+                    isPostSet, isUltrasonicSet, isFloatSet, isEtapeSet, hour,
+                    writeNetcdfOutput, netcdfFilename, &a);
     QObject::connect(sumpMonitor, SIGNAL(finished()), &a, SLOT(quit()));
     QTimer::singleShot(0, sumpMonitor, SLOT(run()));
     return a.exec();
   }
 }
 
-
-void showBanner(QTextStream &stream){
+void showBanner(QTextStream &stream) {
   QStringList commandLine = QCoreApplication::arguments();
   stream << "+------------------------------------------+\n";
   stream << "|               SumpMonitor                |\n";
@@ -206,7 +209,9 @@ void showBanner(QTextStream &stream){
   stream << "SumpMonitor version is: " << QString(GIT_VERSION) << "\n\n";
   stream << "SumpMonitor was run as: \n";
   stream << "   " << commandLine.join(" ") << "\n\n";
-  stream << "SumpMonitor started at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") << "\n\n";
+  stream << "SumpMonitor started at: "
+         << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss")
+         << "\n\n";
   stream.flush();
   return;
 }

@@ -19,7 +19,9 @@
 
 #include "network.h"
 
-bool Network::isUp() { return Network::_isUp(QString("http://www.google.com")); }
+bool Network::isUp() {
+  return Network::_isUp(QString("http://www.google.com"));
+}
 
 bool Network::isUp(QString networkAddress) {
   return Network::_isUp(networkAddress);

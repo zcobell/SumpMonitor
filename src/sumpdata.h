@@ -24,7 +24,7 @@
 
 class SumpData : public QObject {
   Q_OBJECT
-public:
+ public:
   explicit SumpData(QObject *parent = nullptr);
 
   explicit SumpData(QDateTime time, double waterlevel, bool floatstatus,
@@ -41,10 +41,10 @@ public:
   QDateTime time() const;
   void setTime(QDateTime time);
 
-private:
+ private:
   double m_waterLevel;
   bool m_floatStatus;
   QDateTime m_time;
 };
 
-#endif // SUMPDATA_H
+#endif  // SUMPDATA_H

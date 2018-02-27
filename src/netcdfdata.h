@@ -19,16 +19,17 @@
 #ifndef NETCDFDATA_H
 #define NETCDFDATA_H
 
+#include <QDateTime>
 #include <QObject>
 #include <QString>
-#include <QDateTime>
 #include "sumpdata.h"
 
 class NetcdfData : public QObject {
   Q_OBJECT
 
-public: 
-  NetcdfData(QString filename, bool useFloat, bool useEtape, bool useUltrasonic, QObject *parent = 0);
+ public:
+  NetcdfData(QString filename, bool useFloat, bool useEtape, bool useUltrasonic,
+             QObject *parent = 0);
 
   ~NetcdfData();
 
@@ -36,8 +37,7 @@ public:
 
   bool writeToFile(SumpData *data);
 
-private:
-
+ private:
   bool _open();
   bool _close();
   bool _createFile();
@@ -59,8 +59,8 @@ private:
   int m_varidtime;
   int m_dimidtime;
 
-  const QDateTime m_referenceDate = QDateTime(QDate(1970,1,1),QTime(0,0,0));
-
+  const QDateTime m_referenceDate =
+      QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0));
 };
 
-#endif //NETCDFDATA_H
+#endif  // NETCDFDATA_H

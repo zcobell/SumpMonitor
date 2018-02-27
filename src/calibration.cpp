@@ -17,19 +17,18 @@
 //
 //------------------------------GPLv3------------------------------------//
 #include "calibration.h"
-#include "etapeSensor.h"
-#include <QObject>
-#include <QTimer>
-#include "sensorlevel.h"
 #include <stdio.h>
+#include <QObject>
 #include <QTextStream>
+#include <QTimer>
+#include "etapeSensor.h"
+#include "sensorlevel.h"
 
 Calibration::Calibration(QObject *parent) : QObject(parent) {
-    this->_etapeSensor = new EtapeSensor(0, this);
+  this->_etapeSensor = new EtapeSensor(0, this);
 }
 
 void Calibration::run() {
-
   QTextStream out(stdout, QIODevice::WriteOnly);
 
   QTimer *calibrationTimer = new QTimer(this);
@@ -47,7 +46,6 @@ void Calibration::run() {
   calibrationTimer->start(600);
 
   return;
-
 }
 
 void Calibration::checkStatus() {
@@ -56,11 +54,10 @@ void Calibration::checkStatus() {
 
   QTextStream out(stdout, QIODevice::WriteOnly);
 
-  double wl = this->_etapeSensor->getWaterLevel(raw,ierr);
+  double wl = this->_etapeSensor->getWaterLevel(raw, ierr);
 
-  out << wl << "              " << raw <<  "\n";
+  out << wl << "              " << raw << "\n";
   out.flush();
-
 }
 
 void Calibration::endCalibration() {

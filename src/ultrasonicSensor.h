@@ -19,12 +19,12 @@
 #ifndef ULTRASONICSENSOR_H
 #define ULTRASONICSENSOR_H
 
-#include "pins.h"
 #include <QObject>
+#include "pins.h"
 
 class UltrasonicSensor : public QObject {
   Q_OBJECT
-public:
+ public:
   explicit UltrasonicSensor(int n, QObject *parent = 0);
 
   //...Function that performs a series
@@ -32,7 +32,7 @@ public:
   //   results
   double getWaterLevel(int &ierr);
 
-private:
+ private:
   int _highWaterLevel = 10;
   int _lowWaterLevel = 0;
 
@@ -41,7 +41,7 @@ private:
 
   int _nProbes;
 
-  double _temperature = 65; //...Temperature in degrees fahrenheit
+  double _temperature = 65;  //...Temperature in degrees fahrenheit
   double _speedOfSound;
 
   //...Function that performs the measurement
@@ -55,4 +55,4 @@ private:
   double fahrenheit2Celcius(double temperature);
 };
 
-#endif // ULTRASONICSENSOR_H
+#endif  // ULTRASONICSENSOR_H
