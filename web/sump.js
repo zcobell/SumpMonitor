@@ -1,4 +1,10 @@
 
+var waterlevelchart;
+var cycletimechart;
+var floatData;
+var waterData;
+var cycleTime;
+
 function pad(num, size) {
     var s = "000000000" + num;
     return s.substr(s.length-size);
@@ -59,9 +65,6 @@ function parseJSONData(data,isQuery)
 function plot(m_date,m_datevar,m_f,m_wl,isQuery)
 {
     var i;
-    var floatData = new Array();
-    var waterData = new Array();
-    var cycleTime = new Array();
     var nRuns;
     var gallons;
     var dt;
@@ -72,6 +75,10 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
     var tempDate;
     var timestring;
     var lastData;
+    
+    floatData = new Array();
+    waterData = new Array();
+    cycleTime = new Array();
 
     var plotToolTip = {
         formatter: function() {
@@ -84,8 +91,7 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
     maxwl = -999;
     minwl = 999;
 
-    for(i=0;i<m_date.length;i++)
-    {
+    for(i=0;i<m_date.length;i++) {
         floatData[i] = new Array();
         waterData[i] = new Array();
         cycleTime[i] = new Array();
@@ -103,17 +109,15 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
         if(waterData[i][1]<minwl)
             minwl = waterData[i][1];
 
-        if(i>0)
-        {
-            if(waterData[i-1][1]-waterData[i][1] > 1.0)
-            {
+        if(i>0) {
+            if(waterData[i-1][1]-waterData[i][1] > 1.0) {
                 nRuns = nRuns + 1;
                 gallons = gallons + ( (waterData[i-1][1]-waterData[i][1]) * Math.PI * (sumpPitDiameter/2.0) * (sumpPitDiameter/2.0) ) / 231.0;
                 tempDate = new Date(m_date[i]);
                 if(nRuns>1){ 
                     dt = dt + (tempDate.getTime()-lastCycle.getTime())/oneHour;
                     cycleTime[nRuns-2][0] = tempDate.getTime();
-                    cycleTime[nRuns-2][1] = (tempDate.getTime()-lastCycle.getTime())/oneHour;
+                    cycleTime[nRuns-2][1] = Math.round(((tempDate.getTime()-lastCycle.getTime())/oneHour)*100.0)/100.0;
                 }
                 lastCycle = tempDate;
             }
@@ -121,15 +125,17 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
 
     }
 
-    if(nRuns>1)
+    if(nRuns>1){
         dt = dt / (nRuns-1);
-    else
+        cycleTime[0][0] = waterData[0][0];
+        cycleTime[nRuns-2][0] = waterData[m_date.length-1][0];
+    }else{
         dt = 0;
+    }
 
     if(dt>1.0)
         timestring="hours";
-    else
-    {
+    else {
         timestring="minutes";
         dt = dt * 60;
     }
@@ -150,13 +156,10 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
     var lastDataMinute  = pad(lastData.getMinutes(),2);
     var lastDataSecond  = pad(lastData.getSeconds(),2);
     var ampm;
-    if(lastData.getHours()>12)
-    {
+    if(lastData.getHours()>12) {
         lastDataHour = pad(lastData.getHours()-12,2);
         ampm = "PM";
-    }
-    else
-    {
+    } else {
         lastDataHour = pad(lastData.getHours(),2);
         ampm = "AM";
     }
@@ -186,8 +189,7 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
                    "<tr>"+
                        "<td align=\"right\"><b>Minimum water level: </b></td><td>"+Math.round(minwl*100)/100+" inches</td>"+
                    "</tr>";
-    if(isQuery==0)
-    {
+    if(isQuery==0) {
        tableHTML = tableHTML +
                    "<tr>"+
                        "<td align=\"right\"><b>Last data received: </b></td><td>"+lastDataMonth+"/"+lastDataDay+"/"+lastDataYear+" "+
@@ -204,13 +206,18 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
     document.getElementById('stats').innerHTML = tableHTML;                                                
 
 
+    showPlots();
+
+}
+
+
+function showPlots() {
+    
     //...Show last 24 hrs
+    var xmin = floatData[0][0];
     var xmax = floatData[floatData.length-1][0];
-    var xmin = Math.max(floatData[0][0],floatData[floatData.length-1][0]-(24*60*60*1000));
 
-
-    //var xData = { min: xmin, max: xmax, type: 'datetime', title: { text: 'Date (Mountain Time)' }, dateTimeLabelFormats: { month: '%e. %b', year: '%b' }, gridLineWidth: 1 };
-    var xData = { type: 'datetime', title: { text: 'Date (Mountain Time)' }, dateTimeLabelFormats: { month: '%e. %b', year: '%b' }, gridLineWidth: 1 };
+    var xData = { min: xmin, max: xmax, type: 'datetime', title: { text: 'Date (Mountain Time)' }, dateTimeLabelFormats: { month: '%e. %b', year: '%b' }, gridLineWidth: 1 };
     var plotOption = { series: { marker: { enabled: false }, animation: { enabled: true, duration: 1000, easing: 'linear' }, } };
     var plotToolTip = {
              formatter: function() {
@@ -218,31 +225,53 @@ function plot(m_date,m_datevar,m_f,m_wl,isQuery)
                  Highcharts.dateFormat('%b %e, %Y %l:%M%p', this.x) +': '+ this.y.toFixed(2) +' ';
              }
     };
-
-
-    $('#waterlevel').highcharts({
+    
+    waterlevelchart = new Highcharts.chart({
         title: {
             text: 'Sump Water Level',
             x: -20 //center
         },
-        chart : { zoomType: "xy" },
+        chart : { zoomType: "xy",
+                  renderTo: 'waterlevel' },
         xAxis: xData,
         yAxis: { labels: {format: '{value:.2f}'}, title: { text: 'Water Level (in)' }, gridLineWidth: 1, alternateGridColor: '#EEEEEE' },
         series: [{ name: "Water Level", data: waterData, color: '#0000FF' }],
-        plotOptions: { line: { marker: { enabled: false }}}
+        plotOptions: { line: { marker: { enabled: false }, animation: false }}
     });
 
-    $('#cycletime').highcharts({
+    cycletimechart = new Highcharts.chart({
         title: {
             text: 'Sump Cycle Time',
             x: -20 //center
         },
-        chart : { zoomType: "xy" },
+        chart : { zoomType: "xy",
+                  renderTo: 'cycletime' },
         xAxis: xData,
         yAxis: { labels: {format: '{value:.2f}'}, title: { text: 'Cycle Time (hr)' }, gridLineWidth: 1, alternateGridColor: '#EEEEEE' },
         series: [{ name: "Cycle Time", data: cycleTime, color: '#0000FF' }],
-        plotOptions: { line: { marker: { enabled: false }}}
+        plotOptions: { line: { marker: { enabled: false }, animation: false }}
     });
     
+}
 
+function openPlot(evt, plotName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for(i=0;i<tabcontent.length;i++){
+      tabcontent[i].style.display = "none";
+  }
+
+  tablinks = document.getElementsByClassName("tablinks");
+  for(i=0;i<tablinks.length;i++){
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  document.getElementById(plotName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+function redraw_charts() {
+    waterlevelchart.destroy();
+    cycletimechart.destroy();
+    showPlots();
 }

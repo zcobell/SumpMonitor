@@ -7,10 +7,11 @@ header("Expires: 0"); // Proxies.
 echo "<html>";
 echo "<head>";
 echo "<title>Sump Monitor</title>";
-echo "<script language=\"JavaScript\" type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js\"></script>";
+echo "<link rel=\"stylesheet\" href=\"style.css\">";
+echo "<script language=\"JavaScript\" type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>";
 echo "<script language=\"JavaScript\" type=\"text/javascript\" src=\"https://code.highcharts.com/highcharts.js\"></script>";
 echo "<script language=\"JavaScript\" type=\"text/javascript\" src=\"https://code.highcharts.com/modules/exporting.js\"></script>";
-echo "<script language=\"JavaScript\" type=\"text/javascript\" src=\"sump.js\"></script>";
+echo "<script language=\"JavaScript\" type=\"text/javascript\" src=\"sump.js?ver=".filemtime('sump.js')."\"></script>";
 echo "</head>\n";
 echo "<script language=\"Javascript\">\n";
 
@@ -79,12 +80,23 @@ echo "\n</script>\n";
 mysqli_close($con);
 
 if(isset($_GET["startdate"]))
-    echo "<body onload=\"getSumpData(1);\">";
+    echo "<body onload=\"getSumpData(1); openPlot(event,'waterlevel');\" onresize=\"redraw_charts();\">";
 else
-    echo "<body onload=\"getSumpData(0);\">";
+    echo "<body onload=\"getSumpData(0); openPlot(event,'waterlevel');\" onresize=\"redraw_charts();\">";
 
-echo "<div id=\"waterlevel\" style=\"min-width: 310px; height: 400px; margin: 0 auto\"></div>";
-echo "<div id=\"cycletime\" style=\"min-width: 310px; height: 400px; margin: 0 auto\"></div>";
+if ( 1 ){
+    echo "<div class=\"tab\">";
+    echo "   <button class=\"tablinks\" id=\"waterlevelbutton\" onclick=\"openPlot(event, 'waterlevel')\">Water Level</button>";
+    echo "   <button class=\"tablinks\" id=\"cycletimebutton\" onclick=\"openPlot(event, 'cycletime')\">Cycle Time</button>";
+    echo "</div>";
+    echo "<div class=\"tabcontent\" id=\"waterlevel\" style=\"width:100%; margin: 0 auto\"></div>";
+    echo "<div class=\"tabcontent\" id=\"cycletime\" style=\"width:100%; margin: 0 auto\"></div>";
+}else{
+    echo "<div id=\"waterlevel\" style=\"min-width: 310px; height: 400px; margin: 0 auto\"></div>";
+    echo "<div id=\"cycletime\" style=\"min-width: 310px; height: 400px; margin: 0 auto\"></div>";
+}
+
+
 echo "<div id=\"stats\"></div>";
 echo "<div id=\"form\">";
 echo "<form method=\"get\">";
